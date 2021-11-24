@@ -1,0 +1,285 @@
+package com.varaodev.spatialserver.model;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import org.locationtech.jts.geom.Coordinate;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.varaodev.spatialserver.geo.SimpleEarth;
+
+public class MapPoint extends Point {
+	/*
+	 * Default unit: degree
+	 */
+	
+	private static final double MIN_ANGLE_PRECISION = 0.00001;
+	
+	private static final long serialVersionUID = 1L;
+	
+	public static final Double DEGREES_TO_RADIANS = Math.PI/180;
+	
+	public MapPoint() {
+		super();
+	}
+
+	public MapPoint(Coordinate c) {
+		super(c);
+	}
+
+	public MapPoint(double x, double y) {
+		super(x, y);
+	}
+	
+	@Override
+	@JsonIgnore
+	public double getZ() {
+		return z;
+	}
+	
+	public String latLonValue() {
+		return getY() + "," + getX();
+	}
+	
+	public SpacePoint toSpacePoint() {
+		Double r = radius(); Double th = theta(); Double rh = rho();
+		Double x = r * Math.cos(th) * Math.sin(rh);
+		Double y = r * Math.sin(th) * Math.sin(rh);
+		Double z = r * Math.cos(rh);
+		return new SpacePoint(x,y,z);
+	}
+	
+	// considering azimuth at 0 degree, width refers to axis x and length refers to axis y 
+	public List<MapPoint> pointRectangularBuffer(double widthKm, double lengthKm, 
+			double azimuthDeg) {
+		
+		checkValueIsGreaterThanZero(widthKm, "width");
+		checkValueIsGreaterThanZero(lengthKm, "length");
+		
+		// compute vertical points
+		List<MapPoint> points = circularBuffer(lengthKm/2, 2);
+		
+		double angleRad = azimuthDeg * DEGREES_TO_RADIANS;
+		
+		// rotate points
+		List<MapPoint> rotated = points.stream()
+				.map(p -> p.mapRotation(this, angleRad, -1))
+				.collect(Collectors.toList());
+		
+		// rectangular line buffer for rotatated points
+		return rotated.get(0).lineRectangularBuffer(rotated.get(1), widthKm/2);
+	}
+	
+	public List<MapPoint> lineRectangularBuffer(MapPoint p, double distanceKm) {
+		if (equals(p))
+			throw new RuntimeException("Can't calculate line parameters for points "
+					+ this + " and " + p + ": they must be different.");
+		
+		checkValueIsGreaterThanZero(distanceKm, "distance");
+		
+		double dX = getX() - p.x;
+		double dY = getY() - p.y;
+		
+		// calculates the inclination of the line between the two points
+		double inclinAngle = dX == 0 ? Math.PI/2 : Math.atan(dY/dX);
+		
+		List<MapPoint> points = new ArrayList<>();
+		for (MapPoint mapPoint : List.of(this, p)) {
+			SpacePoint sp = mapPoint.toSpacePoint();
+			LinkedHashMap<Double, Double> azimuthMap = new LinkedHashMap<>();
+			
+			// converts distance in km to Earth angle in rad
+			double angleRad = mapPoint.convertLinearToAngularDistance(distanceKm);
+			
+			// calculates the perpendicular azimuths
+			for (int i = 0; i < 2; i++) azimuthMap.put(i*Math.PI - inclinAngle, angleRad);
+			
+			points.addAll(sp.buffer(azimuthMap).stream().map(SpacePoint::toMapPoint)
+					.collect(Collectors.toList()));
+		}
+		// reorders it to create a polygon more easily
+		return new ArrayList<>(List.of(points.get(0), points.get(1), points.get(3), 
+				points.get(2), points.get(0)));
+	}
+	
+	public List<MapPoint> circularBuffer(double distanceKm, int numAzimuths) {
+		checkValueIsGreaterThanZero(distanceKm, "distance");
+		checkValueIsGreaterThanZero(numAzimuths, "azimuths");
+		
+		double angleRad = convertLinearToAngularDistance(distanceKm);
+		
+		List<Double> angles = IntStream.range(0, numAzimuths).boxed()
+				.map(i -> angleRad).collect(Collectors.toList());
+		return toSpacePoint().azimuthRingBuffer(angles).stream().map(SpacePoint::toMapPoint)
+				.collect(Collectors.toList());
+	}
+	
+	public MapPoint mapRotation(MapPoint centroid, double angle_rad, int rotationSense) {
+		if (distance(centroid) > 90)
+			throw new RuntimeException("Invalid centroid:"
+					+ " distance between point and centroid must not exceed 90 degrees.");
+		
+		// positive rotation sense correspond to counterclockwise rotation
+		SpacePoint axis = new SpacePoint(0.0,0.0,rotationSense);
+		
+		// translate original point considering centroid is at (0, 0) 
+		MapPoint p = offset(-centroid.x, -centroid.y);
+		SpacePoint sp = new SpacePoint(p.x, p.y, 0.0);
+		SpacePoint rp = sp.rotation(axis, angle_rad);
+		return new MapPoint(rp.x, rp.y).offset(centroid.x, centroid.y).geoNormalized();
+	}
+	
+	public double distanceKm(MapPoint point) {
+		if (equals(point)) return 0.0;
+		
+		double distanceDeg = distance(point);
+		int parts = (int) Math.ceil(distanceDeg/MIN_ANGLE_PRECISION);
+		
+		// divide distance in small arcs/parts
+		List<MapPoint> list = interpolation(point, parts);
+		double sum = 0.0;
+		SpacePoint sp0 = toSpacePoint();
+		for (MapPoint p : list) {
+			SpacePoint sp = p.toSpacePoint();
+			sum += sp0.arcDistance(sp);
+			sp0 = sp;
+		}
+		
+		return sum;
+	}
+
+	public MapPoint invertLongitude() {
+		return new MapPoint(-getX(), getY());
+	}
+	
+	public MapPoint limitPoint(MapPoint p) {
+		if (!crossedMapLonLimit(p))
+			throw new RuntimeException("Can't calculate limit point:"
+					+ " points did not cross the limit 180/-180.");
+		
+		// calculates point at 180 degree meridian linearly
+		Double lon = getX() < 0 ? -180.0 : 180.0;
+		
+		// calculate line equation y = a.x + b parameters a and b
+		Double[] line = lineParameters(p);
+		
+		// calculates latitude using line equation
+		Double lat = line[0]*lon + line[1];
+		return new MapPoint(lon, lat);
+	}
+	
+	public boolean crossedMapLonLimit(MapPoint p) {
+		// checks if longitudes of two points are close to the 180 meridian in opposite sides
+		double lonDif = Math.abs( getX() - p.getX() );
+		return lonDif > 180*5/3;
+	}
+	
+	public MapPoint geoNormalized() {
+		if (Math.abs(getY()) > 90)
+			throw new RuntimeException("Invalid latitude value: " + getY()
+			 + ". Its maximum absolute value must be 90 degrees.");
+		
+		double halfTurns = Math.ceil(Math.abs(x/180));
+		double xOffset = Math.floor(halfTurns/2)*360;
+		xOffset = x < 0 ? -xOffset : xOffset;
+		return offset(-xOffset, 0);
+	}
+	
+	public MapPoint closestPoint(List<MapPoint> points) {
+		List<Double> distances = points.stream().map(p -> distance(p))
+				.collect(Collectors.toList());
+		return points.get(distances.indexOf(Collections.min(distances)));
+	}
+	
+	public List<MapPoint> interpolation(MapPoint p, int numPoints) {
+		if (numPoints < 2) 
+			throw new RuntimeException("Invalid number of points for interpolation: "
+					+ numPoints + ". Must be at least 2.");
+		
+		int parts = numPoints - 1;
+		double dx = (p.x - getX())/parts;
+		double dy = (p.y - getY())/parts;
+		boolean invertedAxis = dx == 0;
+		Double[] line = lineParameters(p);
+		List<MapPoint> list = new ArrayList<>(List.of(this));
+		for (int i = 1; i < parts; i++) {
+			double x = invertedAxis ? getX() : getX() + i*dx;
+			double y = invertedAxis ? getY() + i*dy : line[0]*x + line[1];
+			list.add( new MapPoint(x,y) );
+		}
+		list.add(p);
+		return list;
+	}
+	
+	public MapPoint offset(double xo, double yo) {
+		return new MapPoint(getX() + xo, getY() + yo);
+	}
+	
+	public MapPoint toDegree() {
+		return new MapPoint(getX()/DEGREES_TO_RADIANS, getY()/DEGREES_TO_RADIANS);
+	}
+	
+	public MapPoint toRadian() {
+		return new MapPoint(getX()*DEGREES_TO_RADIANS, getY()*DEGREES_TO_RADIANS);
+	}
+	
+	// private methods
+	// Angular distance to linear distance in km
+	private double convertLinearToAngularDistance(double linearDistance) {
+		double factor = radius() * Math.PI / 180;
+		return linearDistance / factor * DEGREES_TO_RADIANS;
+	}
+	
+	private Double radius() {
+		MapPoint p = toRadian();
+		
+		// uses ellipse equation
+		Double a = SimpleEarth.EQUATOR_AXIS_KM; Double b = SimpleEarth.POLAR_AXIS_KM;
+		Double asin = a*a*Math.pow(Math.sin(p.getY()), 2);
+		Double bcos = b*b*Math.pow(Math.cos(p.getY()), 2);
+		return a * b / Math.sqrt( asin + bcos );
+	}
+	
+	private Double theta() {
+		MapPoint p = toRadian();
+		return p.getX();
+	}
+	
+	private Double rho() {
+		MapPoint p = toRadian();
+		return Math.PI/2 - p.getY();
+	}
+	
+	private Double[] lineParameters(MapPoint p) {
+		if (this.equals(p))
+			throw new RuntimeException("Can't calculate line parameters for "
+					+ "two identical points");
+		
+		// calculates latitude variation
+		Double dY = p.y - getY();
+		
+		// factor is used to normalize longitude variation (case crossed lon limit)
+		Double factor = getX() >= 0 ? 360.0 : -360.0;
+		
+		// calculates longitude variation
+		Double dX = p.x - getX();
+		dX = Math.abs(dX) > 180 ? dX + factor : dX;
+		
+		// calculates tangent of line inclination 
+		Double a = dY/dX;
+		
+		// calculates line constant value
+		Double b = getY() - a*getX();
+		return new Double[]{a, b};
+	}
+	
+	private void checkValueIsGreaterThanZero(double value, String valueName) {
+		if (value <= 0)
+			throw new RuntimeException("Invalid " + valueName + ": must be greater than zero.");
+	}
+
+}
