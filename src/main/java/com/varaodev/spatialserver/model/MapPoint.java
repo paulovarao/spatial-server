@@ -8,11 +8,13 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.Point;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.varaodev.spatialserver.geo.SimpleEarth;
 
-public class MapPoint extends Point {
+public class MapPoint extends PointModel implements WktModel<Point> {
 	/*
 	 * Default unit: degree
 	 */
@@ -33,6 +35,13 @@ public class MapPoint extends Point {
 
 	public MapPoint(double x, double y) {
 		super(x, y);
+	}
+	
+	public MapPoint(String wkt) {
+		Point point = geometry(wkt, Geometry.TYPENAME_POINT);
+		Coordinate coordinate = point.getCoordinate();
+		setX(coordinate.getX());
+		setY(coordinate.getY());
 	}
 	
 	@Override
@@ -63,11 +72,9 @@ public class MapPoint extends Point {
 		// compute vertical points
 		List<MapPoint> points = circularBuffer(lengthKm/2, 2);
 		
-		double angleRad = azimuthDeg * DEGREES_TO_RADIANS;
-		
 		// rotate points
 		List<MapPoint> rotated = points.stream()
-				.map(p -> p.mapRotation(this, angleRad, -1))
+				.map(p -> p.mapRotation(this, azimuthDeg, -1))
 				.collect(Collectors.toList());
 		
 		// rectangular line buffer for rotatated points
@@ -76,7 +83,7 @@ public class MapPoint extends Point {
 	
 	public List<MapPoint> lineRectangularBuffer(MapPoint p, double distanceKm) {
 		if (equals(p))
-			throw new RuntimeException("Can't calculate line parameters for points "
+			throw new IllegalArgumentException("Can't calculate line parameters for points "
 					+ this + " and " + p + ": they must be different.");
 		
 		checkValueIsGreaterThanZero(distanceKm, "distance");
@@ -118,10 +125,12 @@ public class MapPoint extends Point {
 				.collect(Collectors.toList());
 	}
 	
-	public MapPoint mapRotation(MapPoint centroid, double angle_rad, int rotationSense) {
+	public MapPoint mapRotation(MapPoint centroid, double angleDeg, int rotationSense) {
 		if (distance(centroid) > 90)
-			throw new RuntimeException("Invalid centroid:"
+			throw new IllegalArgumentException("Invalid centroid:"
 					+ " distance between point and centroid must not exceed 90 degrees.");
+		
+		double angleRad = angleDeg * DEGREES_TO_RADIANS;
 		
 		// positive rotation sense correspond to counterclockwise rotation
 		SpacePoint axis = new SpacePoint(0.0,0.0,rotationSense);
@@ -129,7 +138,7 @@ public class MapPoint extends Point {
 		// translate original point considering centroid is at (0, 0) 
 		MapPoint p = offset(-centroid.x, -centroid.y);
 		SpacePoint sp = new SpacePoint(p.x, p.y, 0.0);
-		SpacePoint rp = sp.rotation(axis, angle_rad);
+		SpacePoint rp = sp.rotation(axis, angleRad);
 		return new MapPoint(rp.x, rp.y).offset(centroid.x, centroid.y).geoNormalized();
 	}
 	
@@ -158,7 +167,7 @@ public class MapPoint extends Point {
 	
 	public MapPoint limitPoint(MapPoint p) {
 		if (!crossedMapLonLimit(p))
-			throw new RuntimeException("Can't calculate limit point:"
+			throw new IllegalArgumentException("Can't calculate limit point:"
 					+ " points did not cross the limit 180/-180.");
 		
 		// calculates point at 180 degree meridian linearly
@@ -180,7 +189,7 @@ public class MapPoint extends Point {
 	
 	public MapPoint geoNormalized() {
 		if (Math.abs(getY()) > 90)
-			throw new RuntimeException("Invalid latitude value: " + getY()
+			throw new IllegalArgumentException("Invalid latitude value: " + getY()
 			 + ". Its maximum absolute value must be 90 degrees.");
 		
 		double halfTurns = Math.ceil(Math.abs(x/180));
@@ -197,7 +206,7 @@ public class MapPoint extends Point {
 	
 	public List<MapPoint> interpolation(MapPoint p, int numPoints) {
 		if (numPoints < 2) 
-			throw new RuntimeException("Invalid number of points for interpolation: "
+			throw new IllegalArgumentException("Invalid number of points for interpolation: "
 					+ numPoints + ". Must be at least 2.");
 		
 		int parts = numPoints - 1;
@@ -256,7 +265,7 @@ public class MapPoint extends Point {
 	
 	private Double[] lineParameters(MapPoint p) {
 		if (this.equals(p))
-			throw new RuntimeException("Can't calculate line parameters for "
+			throw new IllegalArgumentException("Can't calculate line parameters for "
 					+ "two identical points");
 		
 		// calculates latitude variation
@@ -279,7 +288,13 @@ public class MapPoint extends Point {
 	
 	private void checkValueIsGreaterThanZero(double value, String valueName) {
 		if (value <= 0)
-			throw new RuntimeException("Invalid " + valueName + ": must be greater than zero.");
+			throw new IllegalArgumentException("Invalid " + valueName + ":"
+					+ " must be greater than zero.");
+	}
+
+	@Override
+	public Point wktGeometry() {
+		return factory().createPoint(this);
 	}
 
 }

@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 import org.locationtech.jts.geom.Coordinate;
 
-public class SpacePoint extends Point {
+public class SpacePoint extends PointModel {
 	
 	private static final long serialVersionUID = 1L;
 	

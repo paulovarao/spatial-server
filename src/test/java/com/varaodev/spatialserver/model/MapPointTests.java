@@ -47,11 +47,11 @@ public class MapPointTests {
 		assertThat(d2).isEqualTo(distance);
 		
 		// Test exceptions
-		assertThrows(RuntimeException.class, () -> {
+		assertThrows(IllegalArgumentException.class, () -> {
 			mp1.pointRectangularBuffer(0, distance, 0);
 		});
 		
-		assertThrows(RuntimeException.class, () -> {
+		assertThrows(IllegalArgumentException.class, () -> {
 			mp1.pointRectangularBuffer(distance, 0, 0);
 		});
 	}
@@ -70,11 +70,11 @@ public class MapPointTests {
 		assertThat(d2).isEqualTo(d3);
 		
 		// Test exceptions
-		assertThrows(RuntimeException.class, () -> {
+		assertThrows(IllegalArgumentException.class, () -> {
 			mp1.lineRectangularBuffer(mp1, distance);
 		});
 		
-		assertThrows(RuntimeException.class, () -> {
+		assertThrows(IllegalArgumentException.class, () -> {
 			mp1.lineRectangularBuffer(mp2, 0);
 		});
 	}
@@ -97,11 +97,11 @@ public class MapPointTests {
 		});
 		
 		// Test exceptions
-		assertThrows(RuntimeException.class, () -> {
+		assertThrows(IllegalArgumentException.class, () -> {
 			mp1.circularBuffer(0, 2);
 		});
 		
-		assertThrows(RuntimeException.class, () -> {
+		assertThrows(IllegalArgumentException.class, () -> {
 			mp1.circularBuffer(10, -2);
 		});
 	}
@@ -111,10 +111,10 @@ public class MapPointTests {
 		MapPoint mp1 = new MapPoint(0, 0);
 		MapPoint mp2 = new MapPoint(90, 0);
 		
-		assertThat(mp1.mapRotation(mp2, Math.PI/2, -1)).isEqualTo(new MapPoint(90, 90));
+		assertThat(mp1.mapRotation(mp2, 90, -1)).isEqualTo(new MapPoint(90, 90));
 		
-		assertThrows(RuntimeException.class, () -> {
-			mp1.mapRotation(new MapPoint(100,0), Math.PI, 1);
+		assertThrows(IllegalArgumentException.class, () -> {
+			mp1.mapRotation(new MapPoint(100,0), 90, 1);
 		});
 	}
 	
@@ -143,7 +143,7 @@ public class MapPointTests {
 		MapPoint p3 = new MapPoint(-168, 40);
 		
 		assertThat(p1.limitPoint(p2)).isEqualTo(new MapPoint(-180, 39.375));
-		assertThrows(RuntimeException.class, () -> {
+		assertThrows(IllegalArgumentException.class, () -> {
 			p1.limitPoint(p3);
 		});
 	}
@@ -167,7 +167,7 @@ public class MapPointTests {
 		samples.stream().forEach(p -> assertThat(p.geoNormalized()).isEqualTo(p));
 		assertThat(new MapPoint(-270, -45).geoNormalized()).isEqualTo(new MapPoint(90, -45));
 		
-		assertThrows(RuntimeException.class, () -> {
+		assertThrows(IllegalArgumentException.class, () -> {
 			new MapPoint(-270, -145).geoNormalized();
 		});
 	}
@@ -183,11 +183,11 @@ public class MapPointTests {
 		List<MapPoint> list = new MapPoint(0, 0).interpolation(new MapPoint(2, 2), 3);
 		assertThat(list.get(1)).isEqualTo(new MapPoint(1, 1));
 		
-		assertThrows(RuntimeException.class, () -> {
+		assertThrows(IllegalArgumentException.class, () -> {
 			samples.get(0).interpolation(samples.get(0), 10);
 		});
 
-		assertThrows(RuntimeException.class, () -> {
+		assertThrows(IllegalArgumentException.class, () -> {
 			samples.get(0).interpolation(samples.get(2), 1);
 		});
 	}

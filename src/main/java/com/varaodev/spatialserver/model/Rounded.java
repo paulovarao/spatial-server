@@ -8,7 +8,7 @@ public interface Rounded {
 	}
 	
 	@SuppressWarnings("unchecked")
-	default <M extends Point> M rounded(int decimalPlaces) {
+	default <M extends PointModel> M rounded(int decimalPlaces) {
 		M c = (M) this;
 		c.setX( round(c.getX(), decimalPlaces) );
 		c.setY( round(c.getY(), decimalPlaces) );
