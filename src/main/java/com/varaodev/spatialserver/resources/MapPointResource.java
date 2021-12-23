@@ -46,10 +46,17 @@ public class MapPointResource implements OperationsResource {
 		return ResponseEntity.ok().body(results);
 	}
 	
-	@GetMapping("/distance")
+	@PostMapping("/distance")
 	public ResponseEntity<List<Double>> distanceInKm(@RequestBody List<String> wktArray) {
 		PointsInput input = new PointsInput(wktArray);
 		List<Double> results = service.distanceInKm(input.getPoints());
+		return ResponseEntity.ok().body(results);
+	}
+	
+	@GetMapping("/distance/params")
+	public ResponseEntity<Map<String,String>> distanceInputParams() {
+		Map<String,String> results = new LinkedHashMap<>();
+		results.put("points", "List.Wkt.Point");
 		return ResponseEntity.ok().body(results);
 	}
 

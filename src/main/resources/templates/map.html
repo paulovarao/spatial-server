@@ -15,7 +15,10 @@
     <link rel="stylesheet" type="text/css"
         href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/css/ol.css">
 
+    <!-- server source -->
+    <!--
     <link rel="stylesheet" href="/map.css">
+    -->
 
     <!-- for frontend tests only -->
     <link rel="stylesheet" href="../static/map.css">
@@ -43,7 +46,6 @@
                 <label for="geometry-type">Geometry type</label>
                 <select id="geometry-type" class="generic-sl">
                     <option value="None">None</option>
-                    <!-- <option value="Point">Point</option> -->
                 </select>
                 <button id="clear" class="generic-bt">Clear</button>
             </div>
@@ -52,40 +54,11 @@
                 <label for="operation">Operation</label>
                 <select id="operation" class="generic-sl">
                     <option value="None">None</option>
-                    <!-- <option value="Rotation">Rotation</option> -->
                 </select>
                 <h4>Layers</h4>
-                <table layers>
-                    <tr layer-control>
-                        <td layer-id>0</td>
-                        <td layer-name>Points</td>
-                        <td><input class="disabled-input" type="text" layer-color></td>
-                        <td><input class="disabled-input" type="checkbox" layer-visible></td>
-                        <td><button class="generic-bt" layer-save>Save</button></td>
-                        <td><button class="generic-bt" layer-clear>Clear</button></td>
-                    </tr>
-                    <tr layer-control>
-                        <td layer-id>1</td>
-                        <td layer-name>Centroid</td>
-                        <td><input class="disabled-input" type="text" layer-color></td>
-                        <td><input class="disabled-input" type="checkbox" layer-visible></td>
-                        <td><button class="generic-bt" layer-save>Save</button></td>
-                        <td><button class="generic-bt" layer-clear>Clear</button></td>
-                    </tr>
-                </table>
+                <table layers></table>
                 <h4>Parameters</h4>
-                <table parameters>
-                    <tr param-control>
-                        <td param-id>0</td>
-                        <td param-name>Angle (deg)</td>
-                        <td><input type="number" param-value value="45"></td>
-                    </tr>
-                    <tr param-control>
-                        <td param-id>1</td>
-                        <td param-name>Rotation sense</td>
-                        <td><input type="number" param-value value="-1"></td>
-                    </tr>
-                </table>
+                <table parameters></table>
                 <h4>Result</h4>
                 <table result>
                     <tr result-control>
@@ -120,8 +93,34 @@
         </div>
     </div>
 
+    <!-- server source -->
+    <!--
+    <script src="/hidden-cards.js"></script>
+    <script src="/left-menu.js"></script>
+    <script src="/backend.js"></script>
+    <script src="/input-row.js"></script>
+    <script src="/input-layers.js"></script>
+    <script src="/layer-styles.js"></script>
+    <script src="/layer-color.js"></script>
+    <script src="/input-parameters.js"></script>
+    <script src="/operation.js"></script>
+    <script src="/draw.js"></script>
+    <script src="/result.js"></script>
     <script src="/map.js"></script>
+    -->
+    
     <!-- for frontend tests only -->
+    <script src="../static/hidden-cards.js"></script>
+    <script src="../static/left-menu.js"></script>
+    <script src="../static/backend.js"></script>
+    <script src="../static/input-row.js"></script>
+    <script src="../static/input-layers.js"></script>
+    <script src="../static/layer-styles.js"></script>
+    <script src="../static/layer-color.js"></script>
+    <script src="../static/input-parameters.js"></script>
+    <script src="../static/operation.js"></script>
+    <script src="../static/draw.js"></script>
+    <script src="../static/result.js"></script>
     <script src="../static/map.js"></script>
 </body>
 
