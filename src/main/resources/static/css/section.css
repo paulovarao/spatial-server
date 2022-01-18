@@ -1,0 +1,6 @@
+/* MAP SECTION */
+section {
+    flex-grow: 5;
+    flex-direction: row;
+    align-items: stretch;
+}

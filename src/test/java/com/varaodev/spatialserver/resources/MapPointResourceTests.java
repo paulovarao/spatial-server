@@ -1,6 +1,6 @@
 package com.varaodev.spatialserver.resources;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.Test;
@@ -40,7 +40,14 @@ public class MapPointResourceTests extends ResourceTests {
 	void distanceInKm() throws Exception {
 		MockHttpServletRequestBuilder mockBuilder = defaultBuilder("/distance");
 		
-		RequestBuilder builder = mockBuilder.content("[\"POINT (0 0)\", \"POINT (1 0)\"]");
+		JsonObject input = new JsonObject();
+		JsonArray points = new JsonArray();
+		points.add("POINT (0 0)");
+		points.add("POINT (1 0)");
+		points.add("POINT (1 1)");
+		input.add("points", points);
+		
+		RequestBuilder builder = mockBuilder.content(input.toString());
 		performMock(builder, status().isOk());
 		
 		// Error testing
@@ -52,7 +59,7 @@ public class MapPointResourceTests extends ResourceTests {
 	}
 	
 	private MockHttpServletRequestBuilder defaultBuilder(String resource) {
-		return get(endpoint + resource).contentType(MediaType.APPLICATION_JSON);
+		return post(endpoint + resource).contentType(MediaType.APPLICATION_JSON);
 	}
 
 }

@@ -5,23 +5,37 @@
     <meta charset="UTF-8">
     <title>Spatial Server - Map</title>
 
-    <!-- no internet connection 
+    <!-- no internet connection -->
     <link href="../static/ol/ol.css" rel="stylesheet" type="text/css" />
 	<script src="../static/ol/ol.js" type="text/javascript"></script>
-    -->
+    
 
-    <!-- internet connection -->
+    <!-- internet connection 
     <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/build/ol.js"></script>
     <link rel="stylesheet" type="text/css"
         href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/css/ol.css">
+    -->
 
-    <!-- server source -->
-    <!--
-    <link rel="stylesheet" href="/map.css">
+    <!-- server source
+    <link rel="stylesheet" href="/css/skeleton.css">
+    <link rel="stylesheet" href="/css/header.css">
+    <link rel="stylesheet" href="/css/section.css">
+    <link rel="stylesheet" href="/css/footer.css">
+    <link rel="stylesheet" href="/css/left-menu.css">
+    <link rel="stylesheet" href="/css/map.css">
+    <link rel="stylesheet" href="/css/hidden.css">
+    <link rel="stylesheet" href="/css/generics.css">
     -->
 
     <!-- for frontend tests only -->
-    <link rel="stylesheet" href="../static/map.css">
+    <link rel="stylesheet" href="../static/css/skeleton.css">
+    <link rel="stylesheet" href="../static/css/header.css">
+    <link rel="stylesheet" href="../static/css/section.css">
+    <link rel="stylesheet" href="../static/css/footer.css">
+    <link rel="stylesheet" href="../static/css/left-menu.css">
+    <link rel="stylesheet" href="../static/css/map.css">
+    <link rel="stylesheet" href="../static/css/hidden.css">
+    <link rel="stylesheet" href="../static/css/generics.css">
 </head>
 
 <body>
@@ -61,14 +75,8 @@
                 <table parameters></table>
                 <h4>Result</h4>
                 <table result>
-                    <tr result-control>
-                        <td layer-name>Result layer</td>
-                        <td><input class="disabled-input" type="text" layer-color></td>
-                        <td><input class="disabled-input" type="checkbox" layer-visible></td>
-                        <td><button class="generic-bt" layer-update>Update</button></td>
-                        <td><button class="generic-bt" layer-clear>Clear</button></td>
-                    </tr>
                 </table>
+                <textarea result-text rows="5" cols="20" readonly></textarea>
             </div>
         </div>
         <button toggle-bt>></button>
@@ -95,33 +103,33 @@
 
     <!-- server source -->
     <!--
-    <script src="/hidden-cards.js"></script>
-    <script src="/left-menu.js"></script>
-    <script src="/backend.js"></script>
-    <script src="/input-row.js"></script>
-    <script src="/input-layers.js"></script>
-    <script src="/layer-styles.js"></script>
-    <script src="/layer-color.js"></script>
-    <script src="/input-parameters.js"></script>
-    <script src="/operation.js"></script>
-    <script src="/draw.js"></script>
-    <script src="/result.js"></script>
-    <script src="/map.js"></script>
+    <script src="/js/hidden-cards.js"></script>
+    <script src="/js/left-menu.js"></script>
+    <script src="/js/backend.js"></script>
+    <script src="/js/input-row.js"></script>
+    <script src="/js/input-layers.js"></script>
+    <script src="/js/layer-styles.js"></script>
+    <script src="/js/layer-color.js"></script>
+    <script src="/js/input-parameters.js"></script>
+    <script src="/js/operation.js"></script>
+    <script src="/js/draw.js"></script>
+    <script src="/js/result.js"></script>
+    <script src="/js/map.js"></script>
     -->
     
     <!-- for frontend tests only -->
-    <script src="../static/hidden-cards.js"></script>
-    <script src="../static/left-menu.js"></script>
-    <script src="../static/backend.js"></script>
-    <script src="../static/input-row.js"></script>
-    <script src="../static/input-layers.js"></script>
-    <script src="../static/layer-styles.js"></script>
-    <script src="../static/layer-color.js"></script>
-    <script src="../static/input-parameters.js"></script>
-    <script src="../static/operation.js"></script>
-    <script src="../static/draw.js"></script>
-    <script src="../static/result.js"></script>
-    <script src="../static/map.js"></script>
+    <script src="../static/js/hidden-cards.js"></script>
+    <script src="../static/js/left-menu.js"></script>
+    <script src="../static/js/backend.js"></script>
+    <script src="../static/js/input-row.js"></script>
+    <script src="../static/js/input-layers.js"></script>
+    <script src="../static/js/layer-styles.js"></script>
+    <script src="../static/js/layer-color.js"></script>
+    <script src="../static/js/input-parameters.js"></script>
+    <script src="../static/js/operation.js"></script>
+    <script src="../static/js/draw.js"></script>
+    <script src="../static/js/result.js"></script>
+    <script src="../static/js/map.js"></script>
 </body>
 
 </html>

@@ -1,0 +1,14 @@
+/* FOOTER */
+footer {
+    flex-basis: 40px;
+    border-top: solid 1px #333;
+    justify-content: right;
+    background-image: linear-gradient(to right, #999 , #334);
+}
+
+#developer-info {
+    font-size: 15px;
+    font-weight: bold;
+    padding: 5px 10px;
+}
+

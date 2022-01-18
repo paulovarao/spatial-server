@@ -76,7 +76,6 @@ class LayerRow {
 class LayerRowTag extends RowTag {
     constructor(id, name, isArray) {
         super(id, name)
-
         const row = this.createTableRow('layer-control', this.createDataArray())
         if (isArray) row.setAttribute('array', '')
         layersTable.appendChild(row)
@@ -91,22 +90,6 @@ class LayerRowTag extends RowTag {
             this.createButton('layer-save', 'Save'),
             this.createButton('layer-clear', 'Clear')
         ]
-    }
-
-    createDisabledInput(type, idParam) {
-        const input = document.createElement('input')
-        input.setAttribute('class', 'disabled-input')
-        input.setAttribute('type', type)
-        input.setAttribute(idParam, '')
-        return this.createRowDataWithChild(input)
-    }
-    
-    createButton(idParam, label) {
-        const button = document.createElement('button')
-        button.setAttribute('class', 'generic-bt')
-        button.setAttribute(idParam, '')
-        button.innerHTML = label
-        return this.createRowDataWithChild(button)
     }
 }
 

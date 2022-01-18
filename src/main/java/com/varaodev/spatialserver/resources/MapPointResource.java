@@ -27,8 +27,8 @@ public class MapPointResource implements OperationsResource {
 	private MapPointService service;
 	
 	@PostMapping("/rotation")
-	public ResponseEntity<List<String>> rotation(@RequestBody Map<String, Object> inputBody) {
-		PointsInput input = new PointsInput(inputBody);
+	public ResponseEntity<List<String>> rotation(@RequestBody Input input) {
+		// PointsInput input = new PointsInput(inputBody);
 		List<Point> resultPoints = service.rotation(input.getPoints(), input.getCentroid(), 
 				input.getAngleDeg(), input.getRotationSense());
 		List<String> results = resultPoints.stream().map(Point::toString)
@@ -43,12 +43,13 @@ public class MapPointResource implements OperationsResource {
 		results.put("centroid", "Wkt.Point");
 		results.put("angleDeg", "Double");
 		results.put("rotationSense", "Integer");
+		results.put("result", "List.Wkt");
 		return ResponseEntity.ok().body(results);
 	}
 	
 	@PostMapping("/distance")
-	public ResponseEntity<List<Double>> distanceInKm(@RequestBody List<String> wktArray) {
-		PointsInput input = new PointsInput(wktArray);
+	public ResponseEntity<List<Double>> distanceInKm(@RequestBody Input input) {
+		// PointsInput input = new PointsInput(inputBody);
 		List<Double> results = service.distanceInKm(input.getPoints());
 		return ResponseEntity.ok().body(results);
 	}
@@ -57,6 +58,7 @@ public class MapPointResource implements OperationsResource {
 	public ResponseEntity<Map<String,String>> distanceInputParams() {
 		Map<String,String> results = new LinkedHashMap<>();
 		results.put("points", "List.Wkt.Point");
+		results.put("result", "List.Double");
 		return ResponseEntity.ok().body(results);
 	}
 
@@ -68,49 +70,42 @@ public class MapPointResource implements OperationsResource {
 				);
 	}
 	
-	// Input class
-	private class PointsInput {
-		
+	static class Input {
 		private List<MapPoint> points;
 		private MapPoint centroid;
 		private Double angleDeg;
 		private Integer rotationSense;
 		
-		@SuppressWarnings("unchecked")
-		public PointsInput(Map<String, Object> input) {
-			List<String> wktArray = (List<String>) input.get("points");
-			String centroidPoint = (String) input.get("centroid");
-			Double angleDeg = Double.parseDouble(input.get("angleDeg").toString());
-			Integer rotationSense = Integer.parseInt(input.get("rotationSense").toString());
-			
-			this.points = points(wktArray);
-			this.centroid = new MapPoint(centroidPoint);
-			this.angleDeg = angleDeg;
-			this.rotationSense = rotationSense;
-		}
-		
-		public PointsInput(List<String> input) {
-			this.points = points(input);
-		}
-
 		public List<MapPoint> getPoints() {
 			return points;
 		}
-
+		
+		public void setPoints(List<MapPoint> points) {
+			this.points = points;
+		}
+		
 		public MapPoint getCentroid() {
 			return centroid;
 		}
-
+		
+		public void setCentroid(MapPoint centroid) {
+			this.centroid = centroid;
+		}
+		
 		public Double getAngleDeg() {
 			return angleDeg;
 		}
-
+		
+		public void setAngleDeg(Double angleDeg) {
+			this.angleDeg = angleDeg;
+		}
+		
 		public Integer getRotationSense() {
 			return rotationSense;
 		}
 		
-		private List<MapPoint> points(List<String> wktArray) {
-			return wktArray.stream().map(w -> new MapPoint(w)).collect(Collectors.toList());
+		public void setRotationSense(Integer rotationSense) {
+			this.rotationSense = rotationSense;
 		}
 	}
 

@@ -12,8 +12,11 @@ import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.Point;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.varaodev.spatialserver.geo.SimpleEarth;
+import com.varaodev.spatialserver.resources.deserializers.MapPointDeserializer;
 
+@JsonDeserialize(using = MapPointDeserializer.class)
 public class MapPoint extends PointModel implements WktModel<Point> {
 	/*
 	 * Default unit: degree

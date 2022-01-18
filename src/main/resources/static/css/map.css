@@ -1,0 +1,12 @@
+/* MAP */
+#map {
+    flex: 1;
+}
+
+#mouse-position {
+    position: absolute;
+    bottom: 45px;
+    right: 45%;
+    padding: 3px;
+    background-color: rgba(33, 33, 44, 0.5);
+}

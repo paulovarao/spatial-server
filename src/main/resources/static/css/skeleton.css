@@ -1,0 +1,19 @@
+/* MAIN STRUCTURE */
+html {
+    height: 100vh;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    color: #FFFFFE;
+}
+
+body {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    height: inherit;
+}
+
+body > * {
+    display: flex;
+    align-items: center;
+}

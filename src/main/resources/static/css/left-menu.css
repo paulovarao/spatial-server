@@ -1,0 +1,87 @@
+/* HIDDEN LEFT MENU */
+aside {
+    position: absolute;
+    top: 0px;
+    width: 400px;
+    height: 100vh;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.aside-hidden {
+    left: -375px;
+}
+
+.aside-shown {
+    left: 0px;
+}
+
+aside > * {
+    border: inherit;
+    padding: 5px;
+}
+
+aside h2 {
+    font-size: 18px;
+    font-weight: bold;
+    padding: 5px 10px;
+    margin: 5px 0px;
+    border-bottom: solid 2px #FFFFFE;
+}
+
+aside > div {
+    align-self: stretch;
+    flex-grow: 5;
+    background-color: #4f4f5f;
+    border: solid 1px #333;
+    overflow-y: scroll;
+}
+
+aside > button {
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: bold;
+    width: 25px;
+    box-sizing: border-box;
+    border-top-right-radius: 15px;
+    border-bottom-right-radius: 15px;
+    background-color: #445;
+    color: inherit;
+}
+
+[toggle-hidden-menu] div {
+    border-top: solid 2px #FFFFFE;
+}
+
+.disabled-input {
+    display: none;
+}
+
+[layer-id], [param-id] {
+    display: none;
+}
+
+[layer-color] {
+    width: 70px;
+}
+
+table input {
+    background-color: #333;
+    color: #AAA;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 5px;
+    margin: 5px;
+}
+
+table input[type="number"] {
+    width: 100px;
+}
+
+aside textarea {
+    width: 340px;
+    resize: vertical;
+}

@@ -1,0 +1,13 @@
+/* HEADER */
+header {
+    justify-content: space-between;
+    flex-basis: 60px;
+    border-bottom: solid 1px #333;
+    background-image: linear-gradient(to left, #999 , #334);
+}
+
+#header-title {
+    font-size: 20px;
+    font-weight: bold;
+    padding: 5px 10px;
+}

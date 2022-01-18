@@ -10,6 +10,22 @@ class RowTag {
         dataArray.forEach(td => tr.appendChild(td))
         return tr
     }
+    
+    createButton(idParam, label) {
+        const button = document.createElement('button')
+        button.setAttribute('class', 'generic-bt')
+        button.setAttribute(idParam, '')
+        button.innerHTML = label
+        return this.createRowDataWithChild(button)
+    }
+
+    createDisabledInput(type, idParam) {
+        const input = document.createElement('input')
+        input.setAttribute('class', 'disabled-input')
+        input.setAttribute('type', type)
+        input.setAttribute(idParam, '')
+        return this.createRowDataWithChild(input)
+    }
 
     createSimpleRowData(attributeName, value) {
         const td = document.createElement('td')
@@ -35,6 +51,9 @@ function updateLayerInputInteractions() {
     Array.from(clearButtons).forEach(bt => bt.onclick = clearLayerAtRow)
     Array.from(checkBoxes).forEach(cb => cb.onchange = changeVisibilityAtRow)
     Array.from(colorInputs).forEach(ci => ci.onchange = updateColorBackground)
+
+    const updateButton = document.querySelector('[result-update]')
+    updateButton.onclick = processOperation
 }
 
 function updateTableControls(params) {
@@ -43,7 +62,9 @@ function updateTableControls(params) {
     for (let i in entries) {
         const type = entries[i][1]
         const name = entries[i][0]
-        if (type.includes('Wkt')) new LayerRowTag(i, name, type.includes('List'))
+        
+        if (name == 'result') new ResultRowTag(type)
+        else if (type.includes('Wkt')) new LayerRowTag(i, name, type.includes('List'))
         else new ParameterRowTag(i, name, 'number')
     }
 
@@ -57,6 +78,7 @@ function clearTableControls(table) {
 function updateInputParameters() {
     clearTableControls(layersTable)
     clearTableControls(paramsTable)
+    clearTableControls(resultTable)
     
     const operation = operationSelect.value
     if (operation != 'None') {
