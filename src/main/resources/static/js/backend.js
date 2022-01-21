@@ -17,8 +17,7 @@ function requestParams(method, body) {
 
 function handleErrors(response) {
     if (!response.ok) {
-        console.log(response.statusText)
-        throw new Error(response.statusText);
+        return response.text().then(text => { throw new Error(text) })
     }
     return response;
 }

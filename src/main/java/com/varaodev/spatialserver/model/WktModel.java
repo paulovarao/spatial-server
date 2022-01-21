@@ -32,7 +32,8 @@ public interface WktModel<M extends Geometry> {
 	
 	private void geometryCheck(Geometry geometry, String expectedGeometryType) {
 		if (!geometry.getGeometryType().equals(expectedGeometryType))
-			throw new IllegalArgumentException("WKT input is not a valid geometry (POINT).");
+			throw new IllegalArgumentException(
+					"WKT input is not a valid geometry (" + expectedGeometryType + ")." );
 	}
 
 }

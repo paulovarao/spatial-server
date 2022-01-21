@@ -35,7 +35,7 @@ class LayerRow {
     layerStyle(feature) {
         const color = hexToInt(this.colorNode.value)
         color.push(0.7)
-        return pointStyle(feature, color)
+        return featureStyle(feature, color)
     }
 
     addLayerToMap(features, callback) {

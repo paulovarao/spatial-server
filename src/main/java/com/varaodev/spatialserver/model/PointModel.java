@@ -3,8 +3,9 @@ package com.varaodev.spatialserver.model;
 import org.locationtech.jts.geom.Coordinate;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.varaodev.spatialserver.serializers.ObjectSerializer;
 
-public abstract class PointModel extends Coordinate implements JsonModel, Rounded {
+public abstract class PointModel extends Coordinate implements ObjectSerializer, Rounded {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -32,7 +33,7 @@ public abstract class PointModel extends Coordinate implements JsonModel, Rounde
 	
 	@Override
 	public String toString() {
-		return toJson();
+		return toJson(this);
 	}
 
 }

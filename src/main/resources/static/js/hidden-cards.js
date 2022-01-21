@@ -26,10 +26,14 @@ const alertCard = document.querySelector('#alert')
 const alertMessage = document.querySelector('#alert-message')
 const closeAlertButton = document.querySelector('#alert button')
 
+function errorMap(error) {
+    if (error == 'TypeError: Failed to fetch') return 'Connection to server failed'
+    return error
+}
+
 function errorAlert(error) {
     showElements([alertCard])
-    alertMessage.innerHTML = !error.response ? 'Connection to server failed' : error
-    // alertMessage.innerHTML = error
+    alertMessage.innerHTML = errorMap(error)
 }
 
 closeAlertButton.onclick = () => hideElements([alertCard])

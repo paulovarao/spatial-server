@@ -1,15 +1,18 @@
 package com.varaodev.spatialserver.resources;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 
 public class MapPointResourceTests extends ResourceTests {
 
@@ -19,20 +22,37 @@ public class MapPointResourceTests extends ResourceTests {
 	}
 	
 	@Test
-	void rotation() throws Exception {
-		MockHttpServletRequestBuilder mockBuilder = defaultBuilder("/rotation");
+	void circularBuffer() throws Exception {
+		MockHttpServletRequestBuilder mockBuilder = defaultBuilder("/circular-buffer");
 		
-		JsonObject input = new JsonObject();
-		JsonArray points = new JsonArray();
+		Map<String, Object> input = new LinkedHashMap<>();
+		List<String> points = new ArrayList<>();
 		points.add("POINT (0 0)");
 		points.add("POINT (1 0)");
 		points.add("POINT (1 1)");
-		input.add("points", points);
-		input.addProperty("centroid", "POINT (0 1)");
-		input.addProperty("angleDeg", 90.0);
-		input.addProperty("rotationSense", -1);
+		input.put("points", points);
+		input.put("distanceInKm", 10.0);
+		input.put("numberOfAzimuths", 4);
 		
-		RequestBuilder builder = mockBuilder.content(input.toString());
+		RequestBuilder builder = mockBuilder.content(toJson(input));
+		performMock(builder, status().isOk());
+	}
+	
+	@Test
+	void rotation() throws Exception {
+		MockHttpServletRequestBuilder mockBuilder = defaultBuilder("/rotation");
+		
+		Map<String, Object> input = new LinkedHashMap<>();
+		List<String> points = new ArrayList<>();
+		points.add("POINT (0 0)");
+		points.add("POINT (1 0)");
+		points.add("POINT (1 1)");
+		input.put("points", points);
+		input.put("centroid", "POINT (0 1)");
+		input.put("angleInDegrees", 90.0);
+		input.put("rotationSense", -1);
+		
+		RequestBuilder builder = mockBuilder.content(toJson(input));
 		performMock(builder, status().isOk());
 	}
 	
@@ -40,14 +60,14 @@ public class MapPointResourceTests extends ResourceTests {
 	void distanceInKm() throws Exception {
 		MockHttpServletRequestBuilder mockBuilder = defaultBuilder("/distance");
 		
-		JsonObject input = new JsonObject();
-		JsonArray points = new JsonArray();
+		Map<String, Object> input = new LinkedHashMap<>();
+		List<String> points = new ArrayList<>();
 		points.add("POINT (0 0)");
 		points.add("POINT (1 0)");
 		points.add("POINT (1 1)");
-		input.add("points", points);
+		input.put("points", points);
 		
-		RequestBuilder builder = mockBuilder.content(input.toString());
+		RequestBuilder builder = mockBuilder.content(toJson(input));
 		performMock(builder, status().isOk());
 		
 		// Error testing
@@ -56,6 +76,22 @@ public class MapPointResourceTests extends ResourceTests {
 		
 		builder = mockBuilder.content("aksdj");
 		performMock(builder, status().isBadRequest());
+	}
+	
+	@Test
+	void operationParams() throws Exception {
+		MockHttpServletRequestBuilder mockBuilder = 
+				get(endpoint + "/params/rotation").contentType(MediaType.APPLICATION_JSON);
+		
+		performMock(mockBuilder, status().isOk());
+	}
+	
+	@Test
+	void operations() throws Exception {
+		MockHttpServletRequestBuilder mockBuilder = 
+				get(endpoint + "/operations").contentType(MediaType.APPLICATION_JSON);
+		
+		performMock(mockBuilder, status().isOk());
 	}
 	
 	private MockHttpServletRequestBuilder defaultBuilder(String resource) {

@@ -13,7 +13,7 @@ const osmLayer = new ol.layer.Tile({
     source: new ol.source.OSM()
 })
 
-const layers = [osmLayer, new ol.layer.Vector({ source: drawSource })]
+const layers = [osmLayer, new ol.layer.Vector({ source: drawSource }), ]
 
 const mousePositionControl = new ol.control.MousePosition({
     coordinateFormat: ol.coordinate.createStringXY(4),

@@ -11,9 +11,11 @@ import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
+import com.varaodev.spatialserver.serializers.ObjectSerializer;
+
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-public abstract class ResourceTests {
+public abstract class ResourceTests implements ObjectSerializer {
 	
 	@LocalServerPort
 	protected int port;

@@ -1,5 +1,6 @@
 package com.varaodev.spatialserver.resources;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -13,12 +14,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/geometry/")
 public class GeometryTypesResource {
 	
+	public static final String[] WKT_TYPES = {"Point"};
+	
+	public static boolean isWkt(String type) {
+		for (String wkt : WKT_TYPES) {
+			if (type.contains(wkt)) return true;
+		}
+		return false;
+	}
+	
 	@GetMapping("/types")
 	public ResponseEntity<List<String>> rotationInputParams() {
-		List<String> results = List.of(
-				"Point"
-				);
-		return ResponseEntity.ok().body(results);
+		return ResponseEntity.ok().body(Arrays.asList(WKT_TYPES));
 	}
 
 }

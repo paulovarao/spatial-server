@@ -36,26 +36,17 @@ function wktGeometries(features) {
     return features.map(f => wktFormat.writeGeometry(f.getGeometry(), defaultProjection))
 }
 
-function updateResultLayer(event, jsonResponse) {
-    const features = jsonResponse.map(wkt => wktFormat.readFeature(wkt, defaultProjection))
-    const layerRow = new LayerRow(event.target)
-    layerRow.addLayerToMap(features)
-}
-
-function updateResult(event, jsonResponse) {
-    const resultText = document.querySelector('[result-text]')
-    resultText.innerHTML = jsonResponse
-    const resultRow = document.querySelector('[result-control]')
-    if (resultRow.hasAttribute('layer')) updateResultLayer(event, jsonResponse)
-}
-
 function requestInputs() {
     const requestBody = {}
 
     function layerValue(node) {
-        const id = node.querySelector('[layer-id]').innerHTML
-        const wkt = wktGeometries(inputLayers[id].getSource().getFeatures())
-        return node.hasAttribute('array') ? wkt : wkt[0]
+        try {
+            const id = node.querySelector('[layer-id]').innerHTML
+            const wkt = wktGeometries(inputLayers[id].getSource().getFeatures())
+            return node.hasAttribute('array') ? wkt : wkt[0]
+        } catch (error) {
+            console.log(error.message)
+        }
     }
 
     function updateRequestBody(type, valueFunction) {
@@ -68,8 +59,21 @@ function requestInputs() {
 
     updateRequestBody('layer', layerValue)
     updateRequestBody('param', node => node.querySelector('[param-value]').value)
-
+    
     return requestBody
+}
+
+function updateResultLayer(event, jsonResponse) {
+    const features = jsonResponse.map(wkt => wktFormat.readFeature(wkt, defaultProjection))
+    const layerRow = new LayerRow(event.target)
+    layerRow.addLayerToMap(features)
+}
+
+function updateResult(event, jsonResponse) {
+    const resultText = document.querySelector('[result-text]')
+    resultText.innerHTML = jsonResponse
+    const resultRow = document.querySelector('[result-control]')
+    if (resultRow.hasAttribute('layer')) updateResultLayer(event, jsonResponse)
 }
 
 function processOperation(event) {

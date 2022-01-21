@@ -53,16 +53,16 @@ public class MapPointServiceTests {
 	
 	@Test
 	void distanceInKm() {
-		service.distanceInKm(points).stream().map(d -> Rounded.round(d, 0))
+		service.distance(points).stream().map(d -> Rounded.round(d, 0))
 			.forEach(d -> assertThat(d).isEqualTo(111));
 		
 		// Test exceptions
 		assertThrows(NullPointerException.class, () -> {
-			service.distanceInKm(null);
+			service.distance(null);
 		});
 		
 		assertThrows(IllegalArgumentException.class, () -> {
-			service.distanceInKm(List.of(points.get(0)));
+			service.distance(List.of(points.get(0)));
 		});
 	}
 

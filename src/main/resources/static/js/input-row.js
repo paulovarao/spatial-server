@@ -72,18 +72,25 @@ function updateTableControls(params) {
 }
 
 function clearTableControls(table) {
-    while(table.firstChild) table.removeChild(table.lastChild)
+    while(table.firstChild) {
+        const clearButtons = table.querySelectorAll('[layer-clear]')
+        if (clearButtons) {
+            for (let bt of clearButtons) new LayerRow(bt).removeLayerFromMap()
+        }
+        table.removeChild(table.lastChild)
+    }
 }
 
 function updateInputParameters() {
-    clearTableControls(layersTable)
     clearTableControls(paramsTable)
+    
+    clearTableControls(layersTable)
     clearTableControls(resultTable)
     
     const operation = operationSelect.value
     if (operation != 'None') {
         const resource = geometryType.value.toLowerCase() + 's'
-        const url = `${rootUrl}/${resource}/${operation}/params`
+        const url = `${rootUrl}/${resource}/params/${operation}`
         fetch(url).then(handleErrors).then(response => response.json())
             .then(updateTableControls)
     }

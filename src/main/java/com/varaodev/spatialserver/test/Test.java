@@ -1,21 +1,32 @@
 package com.varaodev.spatialserver.test;
 
-import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.varaodev.spatialserver.model.MapPoint;
 
 public class Test {
 
-	public static void main(String[] args) throws JsonMappingException, JsonProcessingException {
+	public static void main(String[] args) throws JsonProcessingException {
 		
-		String json = "[\"POINT (0 0)\", \"POINT (1 0)\"]";
+		Map<String, Object> obj = new LinkedHashMap<>();
 		
-        MapPoint[] example = new ObjectMapper().readValue(json, MapPoint[].class);
-        
-		System.out.println(Arrays.asList(example));
+		obj.put("attr1", 1);
+		obj.put("attr2", "value2");
+		
+		ObjectMapper objectMapper = new ObjectMapper();
+		ObjectWriter ow = objectMapper.writer().withDefaultPrettyPrinter();
+		String json = ow.writeValueAsString(obj);
+		
+		System.out.println(obj.toString());
+		System.out.println(json);
+		
+		MapPoint point = new MapPoint();
+		
+		System.out.println(point.toString());
 	}
 	
 }
