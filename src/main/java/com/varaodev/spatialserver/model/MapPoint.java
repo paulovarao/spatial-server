@@ -41,7 +41,7 @@ public class MapPoint extends PointModel implements WktModel<Point> {
 	}
 	
 	public MapPoint(String wkt) {
-		Point point = geometry(wkt, Geometry.TYPENAME_POINT);
+		Point point = geometry(wkt);
 		Coordinate coordinate = point.getCoordinate();
 		setX(coordinate.getX());
 		setY(coordinate.getY());
@@ -66,17 +66,17 @@ public class MapPoint extends PointModel implements WktModel<Point> {
 	}
 	
 	// considering azimuth at 0 degree, width refers to axis x and length refers to axis y 
-	public List<MapPoint> pointRectangularBuffer(double widthKm, double lengthKm, 
+	public MapPoints pointRectangularBuffer(double widthKm, double lengthKm, 
 			double azimuthDeg) {
 		
 		checkValueIsGreaterThanZero(widthKm, "width");
 		checkValueIsGreaterThanZero(lengthKm, "length");
 		
 		// compute vertical points
-		List<MapPoint> points = circularBuffer(lengthKm/2, 2);
+		MapPoints points = circularBuffer(lengthKm/2, 2);
 		
 		// rotate points
-		List<MapPoint> rotated = points.stream()
+		List<MapPoint> rotated = points.getPoints().stream()
 				.map(p -> p.mapRotation(this, azimuthDeg, -1))
 				.collect(Collectors.toList());
 		
@@ -84,7 +84,7 @@ public class MapPoint extends PointModel implements WktModel<Point> {
 		return rotated.get(0).lineRectangularBuffer(rotated.get(1), widthKm/2);
 	}
 	
-	public List<MapPoint> lineRectangularBuffer(MapPoint p, double distanceKm) {
+	public MapPoints lineRectangularBuffer(MapPoint p, double distanceKm) {
 		if (equals(p))
 			throw new IllegalArgumentException("Can't calculate line parameters for points "
 					+ this + " and " + p + ": they must be different.");
@@ -112,11 +112,12 @@ public class MapPoint extends PointModel implements WktModel<Point> {
 					.collect(Collectors.toList()));
 		}
 		// reorders it to create a polygon more easily
-		return new ArrayList<>(List.of(points.get(0), points.get(1), points.get(3), 
+		List<MapPoint> result = new ArrayList<>(List.of(points.get(0), points.get(1), points.get(3), 
 				points.get(2), points.get(0)));
+		return new MapPoints(result);
 	}
 	
-	public List<MapPoint> circularBuffer(double distanceKm, int numAzimuths) {
+	public MapPoints circularBuffer(double distanceKm, int numAzimuths) {
 		checkValueIsGreaterThanZero(distanceKm, "distance");
 		checkValueIsGreaterThanZero(numAzimuths, "azimuths");
 		
@@ -124,8 +125,16 @@ public class MapPoint extends PointModel implements WktModel<Point> {
 		
 		List<Double> angles = IntStream.range(0, numAzimuths).boxed()
 				.map(i -> angleRad).collect(Collectors.toList());
-		return toSpacePoint().azimuthRingBuffer(angles).stream().map(SpacePoint::toMapPoint)
+		List<MapPoint> result = toSpacePoint().azimuthRingBuffer(angles).stream()
+				.map(SpacePoint::toMapPoint)
 				.collect(Collectors.toList());
+		return new MapPoints(result);
+	}
+	
+	public MapPoints box(MapPoint otherPoint) {
+		List<MapPoint> boxPoints = List.of(this, new MapPoint(getX(), otherPoint.getY()),
+				otherPoint,	new MapPoint(otherPoint.getX(), getY()), this);
+		return new MapPoints(boxPoints);
 	}
 	
 	public MapPoint mapRotation(MapPoint centroid, double angleDeg, int rotationSense) {
@@ -238,14 +247,24 @@ public class MapPoint extends PointModel implements WktModel<Point> {
 	public MapPoint toRadian() {
 		return new MapPoint(getX()*DEGREES_TO_RADIANS, getY()*DEGREES_TO_RADIANS);
 	}
+
+	@Override
+	public Point wktGeometry() {
+		return factory().createPoint(this);
+	}
+
+	@Override
+	public String validGeometryType() {
+		return Geometry.TYPENAME_POINT;
+	}
 	
-	// private methods
 	// Angular distance to linear distance in km
-	private double convertLinearToAngularDistance(double linearDistance) {
+	public double convertLinearToAngularDistance(double linearDistance) {
 		double factor = radius() * Math.PI / 180;
 		return linearDistance / factor * DEGREES_TO_RADIANS;
 	}
 	
+	// private methods
 	private Double radius() {
 		MapPoint p = toRadian();
 		
@@ -293,11 +312,6 @@ public class MapPoint extends PointModel implements WktModel<Point> {
 		if (value <= 0)
 			throw new IllegalArgumentException("Invalid " + valueName + ":"
 					+ " must be greater than zero.");
-	}
-
-	@Override
-	public Point wktGeometry() {
-		return factory().createPoint(this);
 	}
 
 }

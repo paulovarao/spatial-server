@@ -3,7 +3,6 @@ package com.varaodev.spatialserver.resources;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.locationtech.jts.geom.MultiPoint;
 import org.locationtech.jts.geom.Point;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -13,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.varaodev.spatialserver.model.MapPoint;
+import com.varaodev.spatialserver.model.StdPolygon;
 import com.varaodev.spatialserver.services.MapPointService;
 
 @CrossOrigin
@@ -22,26 +22,26 @@ public class MapPointResource extends OperationsResource<MapPointService> {
 	
 	@PostMapping("/rectangular-buffer")
 	public ResponseEntity<List<String>> rectangularBuffer(@RequestBody Input input) {
-		List<MultiPoint> resultPoints = service.rectangularBuffer(input.getPoints(), input.getWidthInKm(),
+		List<StdPolygon> resultPoints = service.rectangularBuffer(input.getPoints(), input.getWidthInKm(),
 				input.getLengthInKm(), input.getAzimuthInDegrees());
-		List<String> results = resultPoints.stream().map(MultiPoint::toString)
+		List<String> results = resultPoints.stream().map(StdPolygon::toString)
 				.collect(Collectors.toList());
 		return ResponseEntity.ok().body(results);
 	}
 	
 	@PostMapping("/line-buffer")
 	public ResponseEntity<List<String>> lineBuffer(@RequestBody Input input) {
-		List<MultiPoint> resultPoints = service.lineBuffer(input.getPoints(), input.getDistanceInKm());
-		List<String> results = resultPoints.stream().map(MultiPoint::toString)
+		List<StdPolygon> resultPoints = service.lineBuffer(input.getPoints(), input.getDistanceInKm());
+		List<String> results = resultPoints.stream().map(StdPolygon::toString)
 				.collect(Collectors.toList());
 		return ResponseEntity.ok().body(results);
 	}
 	
 	@PostMapping("/circular-buffer")
 	public ResponseEntity<List<String>> circularBuffer(@RequestBody Input input) {
-		List<MultiPoint> resultPoints = service.circularBuffer(input.getPoints(), input.getDistanceInKm(), 
+		List<StdPolygon> resultPoints = service.circularBuffer(input.getPoints(), input.getDistanceInKm(), 
 				input.getNumberOfAzimuths());
-		List<String> results = resultPoints.stream().map(MultiPoint::toString)
+		List<String> results = resultPoints.stream().map(StdPolygon::toString)
 				.collect(Collectors.toList());
 		return ResponseEntity.ok().body(results);
 	}

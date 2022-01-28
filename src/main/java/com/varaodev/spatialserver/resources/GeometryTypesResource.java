@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/geometry/")
 public class GeometryTypesResource {
 	
-	public static final String[] WKT_TYPES = {"Point"};
+	public static final String[] WKT_TYPES = {"Point", "Line", "Polygon"};
 	
 	public static boolean isWkt(String type) {
 		for (String wkt : WKT_TYPES) {
@@ -24,7 +24,7 @@ public class GeometryTypesResource {
 	}
 	
 	@GetMapping("/types")
-	public ResponseEntity<List<String>> rotationInputParams() {
+	public ResponseEntity<List<String>> wktTypes() {
 		return ResponseEntity.ok().body(Arrays.asList(WKT_TYPES));
 	}
 

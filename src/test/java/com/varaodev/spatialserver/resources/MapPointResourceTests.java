@@ -1,7 +1,6 @@
 package com.varaodev.spatialserver.resources;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.ArrayList;
@@ -92,10 +91,6 @@ public class MapPointResourceTests extends ResourceTests {
 				get(endpoint + "/operations").contentType(MediaType.APPLICATION_JSON);
 		
 		performMock(mockBuilder, status().isOk());
-	}
-	
-	private MockHttpServletRequestBuilder defaultBuilder(String resource) {
-		return post(endpoint + resource).contentType(MediaType.APPLICATION_JSON);
 	}
 
 }

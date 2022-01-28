@@ -38,7 +38,8 @@ public class MapPointTests {
 		
 		double distance = 100;
 		
-		List<MapPoint> list = mp1.pointRectangularBuffer(distance, distance, 45);
+		MapPoints points = mp1.pointRectangularBuffer(distance, distance, 45);
+		List<MapPoint> list = points.getPoints();
 		
 		double d1 = Rounded.round(list.get(1).distanceKm(list.get(0)), 0);
 		double d2 = Rounded.round(list.get(1).distanceKm(list.get(2)), 0);
@@ -61,7 +62,8 @@ public class MapPointTests {
 		MapPoint mp1 = new MapPoint(0, 0);
 		MapPoint mp2 = new MapPoint(0, 4);
 		double distance = 100;
-		List<MapPoint> list = mp1.lineRectangularBuffer(mp2, distance);
+		MapPoints points = mp1.lineRectangularBuffer(mp2, distance);
+		List<MapPoint> list = points.getPoints();
 		double d1 = Rounded.round(list.get(1).distanceKm(list.get(0)), 0);
 		double d2 = Rounded.round(list.get(1).distanceKm(list.get(2)), 0);
 		double d3 = Rounded.round(mp1.distanceKm(mp2), 0);
@@ -83,7 +85,8 @@ public class MapPointTests {
 	void circularBuffer() {
 		double distance = 100;
 		MapPoint mp1 = new MapPoint(0, 0);
-		List<MapPoint> list = mp1.circularBuffer(distance, 4);
+		MapPoints points = mp1.circularBuffer(distance, 4);
+		List<MapPoint> list = points.getPoints();
 
 		// Test distances
 		list.stream().map(mp -> Rounded.round(mp1.distanceKm(mp), 0))

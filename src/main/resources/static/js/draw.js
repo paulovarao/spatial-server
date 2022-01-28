@@ -6,10 +6,11 @@ let draw; // global so we can remove it later
 
 function addInteraction() {
     const value = geometryType.value;
+    // if (value == 'Line') value = 'LineString'
     if (value !== 'None') {
         draw = new ol.interaction.Draw({
             source: drawSource,
-            type: value,
+            type: value == 'Line' ? 'LineString' : value
         });
         map.addInteraction(draw);
     }

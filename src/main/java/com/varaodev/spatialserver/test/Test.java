@@ -1,32 +1,27 @@
 package com.varaodev.spatialserver.test;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.varaodev.spatialserver.model.MapPoint;
+import com.varaodev.spatialserver.model.MapPoints;
+import com.varaodev.spatialserver.model.MapPolygon;
+import com.varaodev.spatialserver.model.Mosaic;
 
 public class Test {
 
 	public static void main(String[] args) throws JsonProcessingException {
 		
-		Map<String, Object> obj = new LinkedHashMap<>();
+		List<MapPoint> mp1 = List.of(new MapPoint(0,0), new MapPoint(0,0.01), new MapPoint(0.01,0.01),
+				new MapPoint(0.01, 0), new MapPoint(0,0));
 		
-		obj.put("attr1", 1);
-		obj.put("attr2", "value2");
+		MapPolygon p1 = new MapPolygon(new MapPoints(mp1), null);
 		
-		ObjectMapper objectMapper = new ObjectMapper();
-		ObjectWriter ow = objectMapper.writer().withDefaultPrettyPrinter();
-		String json = ow.writeValueAsString(obj);
+		Mosaic mosaic = new Mosaic(p1, 7.0, 4.0, 49.0, 0.0, 0.35);
 		
-		System.out.println(obj.toString());
-		System.out.println(json);
+		List<MapPolygon> tiles = mosaic.tiles();
 		
-		MapPoint point = new MapPoint();
-		
-		System.out.println(point.toString());
+		System.out.println(tiles);
 	}
 	
 }
