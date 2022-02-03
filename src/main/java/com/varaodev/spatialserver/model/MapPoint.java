@@ -103,7 +103,7 @@ public class MapPoint extends PointModel implements WktModel<Point> {
 			LinkedHashMap<Double, Double> azimuthMap = new LinkedHashMap<>();
 			
 			// converts distance in km to Earth angle in rad
-			double angleRad = mapPoint.convertLinearToAngularDistance(distanceKm);
+			double angleRad = mapPoint.convertLinearToAngularDistanceInRadians(distanceKm);
 			
 			// calculates the perpendicular azimuths
 			for (int i = 0; i < 2; i++) azimuthMap.put(i*Math.PI - inclinAngle, angleRad);
@@ -121,7 +121,7 @@ public class MapPoint extends PointModel implements WktModel<Point> {
 		checkValueIsGreaterThanZero(distanceKm, "distance");
 		checkValueIsGreaterThanZero(numAzimuths, "azimuths");
 		
-		double angleRad = convertLinearToAngularDistance(distanceKm);
+		double angleRad = convertLinearToAngularDistanceInRadians(distanceKm);
 		
 		List<Double> angles = IntStream.range(0, numAzimuths).boxed()
 				.map(i -> angleRad).collect(Collectors.toList());
@@ -259,12 +259,16 @@ public class MapPoint extends PointModel implements WktModel<Point> {
 	}
 	
 	// Angular distance to linear distance in km
-	public double convertLinearToAngularDistance(double linearDistance) {
+	public double convertLinearToAngularDistanceInDegrees(double linearDistance) {
 		double factor = radius() * Math.PI / 180;
-		return linearDistance / factor * DEGREES_TO_RADIANS;
+		return linearDistance / factor;
 	}
 	
 	// private methods
+	private double convertLinearToAngularDistanceInRadians(double linearDistance) {
+		return convertLinearToAngularDistanceInDegrees(linearDistance) * DEGREES_TO_RADIANS;
+	}
+	
 	private Double radius() {
 		MapPoint p = toRadian();
 		

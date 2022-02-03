@@ -138,10 +138,10 @@ public class Mosaic implements Rotator {
 			centroid = new MapPoint(getPolygon().wktGeometry().getCentroid().getCoordinate());
 			
 			// convert linear arguments to angular
-			widthDeg = centroid.convertLinearToAngularDistance(widthKm);
-			minLengthDeg = centroid.convertLinearToAngularDistance(minLengthKm);
-			maxLengthDeg = centroid.convertLinearToAngularDistance(maxLengthKm);
-			overlapDeg = centroid.convertLinearToAngularDistance(overlapKm);
+			widthDeg = centroid.convertLinearToAngularDistanceInDegrees(widthKm);
+			minLengthDeg = centroid.convertLinearToAngularDistanceInDegrees(minLengthKm);
+			maxLengthDeg = centroid.convertLinearToAngularDistanceInDegrees(maxLengthKm);
+			overlapDeg = centroid.convertLinearToAngularDistanceInDegrees(overlapKm);
 			
 			// Rotate geometry of azimuth angle
 			rotated = rotated(centroid, azimuthDeg, 1);

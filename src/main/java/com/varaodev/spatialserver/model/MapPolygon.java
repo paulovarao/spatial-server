@@ -47,6 +47,17 @@ public class MapPolygon implements WktModel<Polygon>, ObjectSerializer, Triangul
 	public List<MapPoints> getHoles() {
 		return holes;
 	}
+	
+	public MapPolygon simple() {
+		if (wktGeometry().isSimple()) {
+			return this;
+		} else {
+			MapPoints simpShell = new MapPoints(getShell().simplified());
+			List<MapPoints> simpHoles = getHoles().stream().map(h -> new MapPoints(h.simplified()))
+					.collect(Collectors.toList());
+			return new MapPolygon(simpShell, simpHoles);				
+		}
+	}
 
 	@Override
 	public Polygon wktGeometry() {
@@ -76,7 +87,7 @@ public class MapPolygon implements WktModel<Polygon>, ObjectSerializer, Triangul
 		for (MapPoints mp : list) {
 			if (mp == null || mp.getPoints() == null)
 				throw new IllegalArgumentException("Failed to instantiate MapPolygon:"
-						+ " a element was found.");
+						+ " a null element was found.");
 			
 			if (mp.getPoints().size() < 3)
 				throw new IllegalArgumentException("Failed to instantiate MapPolygon:"

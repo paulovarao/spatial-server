@@ -22,26 +22,26 @@ public class MapPointResource extends OperationsResource<MapPointService> {
 	
 	@PostMapping("/rectangular-buffer")
 	public ResponseEntity<List<String>> rectangularBuffer(@RequestBody Input input) {
-		List<StdPolygon> resultPoints = service.rectangularBuffer(input.getPoints(), input.getWidthInKm(),
+		List<StdPolygon> resultPolygons = service.rectangularBuffer(input.getPoints(), input.getWidthInKm(),
 				input.getLengthInKm(), input.getAzimuthInDegrees());
-		List<String> results = resultPoints.stream().map(StdPolygon::toString)
+		List<String> results = resultPolygons.stream().map(StdPolygon::toString)
 				.collect(Collectors.toList());
 		return ResponseEntity.ok().body(results);
 	}
 	
 	@PostMapping("/line-buffer")
 	public ResponseEntity<List<String>> lineBuffer(@RequestBody Input input) {
-		List<StdPolygon> resultPoints = service.lineBuffer(input.getPoints(), input.getDistanceInKm());
-		List<String> results = resultPoints.stream().map(StdPolygon::toString)
+		List<StdPolygon> resultPolygons = service.lineBuffer(input.getPoints(), input.getDistanceInKm());
+		List<String> results = resultPolygons.stream().map(StdPolygon::toString)
 				.collect(Collectors.toList());
 		return ResponseEntity.ok().body(results);
 	}
 	
 	@PostMapping("/circular-buffer")
 	public ResponseEntity<List<String>> circularBuffer(@RequestBody Input input) {
-		List<StdPolygon> resultPoints = service.circularBuffer(input.getPoints(), input.getDistanceInKm(), 
+		List<StdPolygon> resultPolygons = service.circularBuffer(input.getPoints(), input.getDistanceInKm(), 
 				input.getNumberOfAzimuths());
-		List<String> results = resultPoints.stream().map(StdPolygon::toString)
+		List<String> results = resultPolygons.stream().map(StdPolygon::toString)
 				.collect(Collectors.toList());
 		return ResponseEntity.ok().body(results);
 	}

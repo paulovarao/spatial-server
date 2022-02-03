@@ -28,6 +28,8 @@ function updateOperationOptions() {
             .then(options => appendOptions(operationSelect, options))
             .catch(errorAlert)
     }
+    operationSelect.value = 'None'
+    updateInputParameters()
 }
 
 operationSelect.onchange = updateInputParameters

@@ -81,7 +81,17 @@ function clearTableControls(table) {
     }
 }
 
+function updateParamsVisibility() {
+    const hiddenElements = document.querySelectorAll('[menu-hidden-element]')
+    if (operationSelect.value == 'None')
+        hiddenElements.forEach(he => he.classList.add('hidden'))
+    else
+        hiddenElements.forEach(he => he.classList.remove('hidden'))
+}
+
 function updateInputParameters() {
+    updateParamsVisibility()
+
     clearTableControls(paramsTable)
     
     clearTableControls(layersTable)

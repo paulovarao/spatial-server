@@ -21,9 +21,9 @@ public class MapLineResource extends OperationsResource<MapLineService> {
 	
 	@PostMapping("/buffer")
 	public ResponseEntity<List<String>> buffer(@RequestBody Input input) {
-		List<StdPolygon> resultPoints = service.buffer(input.getLines(), input.getDistanceInKm(),
+		List<StdPolygon> resultPolygons = service.buffer(input.getLines(), input.getDistanceInKm(),
 				input.getNumberOfAzimuths());
-		List<String> results = resultPoints.stream().map(StdPolygon::toString)
+		List<String> results = resultPolygons.stream().map(StdPolygon::toString)
 				.collect(Collectors.toList());
 		return ResponseEntity.ok().body(results);
 	}

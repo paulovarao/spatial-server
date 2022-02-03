@@ -71,8 +71,8 @@ function updateResultLayer(event, jsonResponse) {
 
 function updateResult(event, jsonResponse) {
     const resultText = document.querySelector('[result-text]')
-    resultText.innerHTML = jsonResponse
     const resultRow = document.querySelector('[result-control]')
+    resultText.innerHTML = jsonResponse.join(';')
     if (resultRow.hasAttribute('layer')) updateResultLayer(event, jsonResponse)
 }
 

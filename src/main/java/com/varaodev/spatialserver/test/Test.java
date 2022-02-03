@@ -1,27 +1,37 @@
 package com.varaodev.spatialserver.test;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.locationtech.jts.geom.Geometry;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.varaodev.spatialserver.model.MapPoint;
-import com.varaodev.spatialserver.model.MapPoints;
 import com.varaodev.spatialserver.model.MapPolygon;
-import com.varaodev.spatialserver.model.Mosaic;
+import com.varaodev.spatialserver.model.StdPolygon;
 
 public class Test {
 
 	public static void main(String[] args) throws JsonProcessingException {
 		
-		List<MapPoint> mp1 = List.of(new MapPoint(0,0), new MapPoint(0,0.01), new MapPoint(0.01,0.01),
-				new MapPoint(0.01, 0), new MapPoint(0,0));
+		List<MapPolygon> polygons = new ArrayList<>();
+		polygons.add(new MapPolygon("POLYGON ((0 0, 0 2, 2 2, 2 0, 0 0))"));
+		polygons.add(new MapPolygon("POLYGON ((-1 -1, -1 1, 1 1, 1 -1, -1 -1))"));
 		
-		MapPolygon p1 = new MapPolygon(new MapPoints(mp1), null);
+		Geometry result = polygons.isEmpty() ? new StdPolygon(polygons).wktGeometry() 
+				: polygons.get(0).wktGeometry();
 		
-		Mosaic mosaic = new Mosaic(p1, 7.0, 4.0, 49.0, 0.0, 0.35);
+		for (int i = 1; i < polygons.size(); i++) {
+			result = result.intersection(polygons.get(i).wktGeometry());
+		}
 		
-		List<MapPolygon> tiles = mosaic.tiles();
+//		Geometry g0 = new StdPolygon(new ArrayList<>()).wktGeometry();
+//		Geometry result = polygons.stream().map(p -> (Geometry) p.wktGeometry())
+//				.reduce(g0, (i, g) -> i.union(g));
 		
-		System.out.println(tiles);
+		System.out.println(result);
+		
+		System.out.println(new StdPolygon(new ArrayList<>()));
+		
 	}
 	
 }

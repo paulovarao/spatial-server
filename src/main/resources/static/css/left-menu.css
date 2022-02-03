@@ -2,7 +2,7 @@
 aside {
     position: absolute;
     top: 0px;
-    width: 400px;
+    width: 475px;
     height: 100vh;
     box-sizing: border-box;
     display: flex;
@@ -11,7 +11,7 @@ aside {
 }
 
 .aside-hidden {
-    left: -375px;
+    left: -450px;
 }
 
 .aside-shown {
@@ -82,6 +82,6 @@ table input[type="number"] {
 }
 
 aside textarea {
-    width: 340px;
+    width: 415px;
     resize: vertical;
 }

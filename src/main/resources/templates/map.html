@@ -61,6 +61,7 @@
                 <select id="geometry-type" class="generic-sl">
                     <option value="None">None</option>
                 </select>
+                <input  id="toggle-draw" type="checkbox" checked="true">
                 <button id="clear" class="generic-bt">Clear</button>
             </div>
             <div id="operation-input">
@@ -69,13 +70,16 @@
                 <select id="operation" class="generic-sl">
                     <option value="None">None</option>
                 </select>
+            </div>
+            <div class="hidden" menu-hidden-element> 
                 <h4>Layers</h4>
                 <table layers></table>
                 <h4>Parameters</h4>
                 <table parameters></table>
+            </div>
+            <div class="hidden" menu-hidden-element>
                 <h4>Result</h4>
-                <table result>
-                </table>
+                <table result></table>
                 <textarea result-text rows="5" cols="20" readonly></textarea>
             </div>
         </div>

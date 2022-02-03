@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.varaodev.spatialserver.model.MapPolygon;
+import com.varaodev.spatialserver.model.StdPolygon;
 import com.varaodev.spatialserver.services.MapPolygonService;
 
 @CrossOrigin
@@ -19,12 +20,38 @@ import com.varaodev.spatialserver.services.MapPolygonService;
 public class MapPolygonResource extends OperationsResource<MapPolygonService> {
 	
 	@PostMapping("/mosaic")
-	public ResponseEntity<List<String>> buffer(@RequestBody Input input) {
-		List<MapPolygon> resultPoints = service.mosaic(input.getPolygons(), input.getWidthInKm(),
+	public ResponseEntity<List<String>> mosaic(@RequestBody Input input) {
+		List<MapPolygon> resultPolygons = service.mosaic(input.getPolygons(), input.getWidthInKm(),
 				input.getMinimumLengthInKm(), input.getMaximumLengthInKm(), input.getAzimuthInDegrees(),
 				input.getOverlapInKm());
-		List<String> results = resultPoints.stream().map(MapPolygon::toString)
+		List<String> results = resultPolygons.stream().map(MapPolygon::toString)
 				.collect(Collectors.toList());
+		return ResponseEntity.ok().body(results);
+	}
+	
+	@PostMapping("/intersection")
+	public ResponseEntity<List<String>> intersection(@RequestBody Input input) {
+		StdPolygon result = service.intersection(input.getPolygons());
+		return ResponseEntity.ok().body(List.of(result.toString()));
+	}
+	
+	@PostMapping("/union")
+	public ResponseEntity<List<String>> union(@RequestBody Input input) {
+		StdPolygon result = service.union(input.getPolygons());
+		return ResponseEntity.ok().body(List.of(result.toString()));
+	}
+	
+	@PostMapping("/simple")
+	public ResponseEntity<List<String>> simple(@RequestBody Input input) {
+		List<MapPolygon> resultPolygons = service.simple(input.getPolygons());
+		List<String> results = resultPolygons.stream().map(MapPolygon::toString)
+				.collect(Collectors.toList());
+		return ResponseEntity.ok().body(results);
+	}
+	
+	@PostMapping("/area")
+	public ResponseEntity<List<Double>> area(@RequestBody Input input) {
+		List<Double> results = service.area(input.getPolygons());
 		return ResponseEntity.ok().body(results);
 	}
 	
