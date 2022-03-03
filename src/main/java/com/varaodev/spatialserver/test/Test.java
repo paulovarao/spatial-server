@@ -1,36 +1,35 @@
 package com.varaodev.spatialserver.test;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.locationtech.jts.geom.Geometry;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.varaodev.spatialserver.geo.SimpleEarth;
+import com.varaodev.spatialserver.model.MapPoint;
 import com.varaodev.spatialserver.model.MapPolygon;
-import com.varaodev.spatialserver.model.StdPolygon;
 
 public class Test {
 
 	public static void main(String[] args) throws JsonProcessingException {
 		
-		List<MapPolygon> polygons = new ArrayList<>();
-		polygons.add(new MapPolygon("POLYGON ((0 0, 0 2, 2 2, 2 0, 0 0))"));
-		polygons.add(new MapPolygon("POLYGON ((-1 -1, -1 1, 1 1, 1 -1, -1 -1))"));
+		// QGIS = 41.365
 		
-		Geometry result = polygons.isEmpty() ? new StdPolygon(polygons).wktGeometry() 
-				: polygons.get(0).wktGeometry();
+		MapPoint p1 = new MapPoint(0.004, 0.104);
+		MapPoint p2 = new MapPoint(0.304, -0.106);
 		
-		for (int i = 1; i < polygons.size(); i++) {
-			result = result.intersection(polygons.get(i).wktGeometry());
-		}
+		System.out.println(p1.toSpacePoint());
+		System.out.println(p2.toSpacePoint());
 		
-//		Geometry g0 = new StdPolygon(new ArrayList<>()).wktGeometry();
-//		Geometry result = polygons.stream().map(p -> (Geometry) p.wktGeometry())
-//				.reduce(g0, (i, g) -> i.union(g));
+		System.out.println(p1.distanceKm(p2));
 		
-		System.out.println(result);
+		double a = SimpleEarth.EQUATOR_AXIS_KM;
+		double b = SimpleEarth.POLAR_AXIS_KM;
 		
-		System.out.println(new StdPolygon(new ArrayList<>()));
+		double c = Math.sqrt(a*a - b*b);
+		double e = c/a;
+		
+		System.out.println(e);
+		
+		MapPolygon polygon = new MapPolygon("POLYGON ((0 0, 0 2, 2 2, 2 0, 0 0))");
+		
+		System.out.println(polygon.area());
 		
 	}
 	

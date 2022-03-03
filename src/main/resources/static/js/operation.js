@@ -3,6 +3,8 @@ const operationSelect = document.querySelector('#operation')
 function clearExistingOptions(select) {
     Array.from(select.childNodes).filter(option => option.innerHTML != 'None')
         .forEach(option => select.removeChild(option))
+    operationSelect.value = 'None'
+    updateParamsVisibility(false)
 }
 
 function appendOptions(select, options) {
@@ -28,7 +30,6 @@ function updateOperationOptions() {
             .then(options => appendOptions(operationSelect, options))
             .catch(errorAlert)
     }
-    operationSelect.value = 'None'
     updateInputParameters()
 }
 

@@ -2,8 +2,8 @@
 
 ## TO DO
 
+- improve area calculation (distance between ellipsoid points)
 - limit elements in input arrays
-- import/export data
 
 
 ## Technologies
@@ -38,7 +38,11 @@
 
 ### 2) Polygons
 
+* Area
+* Intersection between polygons
 * Mosaic
+* Simplification of non simple polygons
+* Union of polygons
 
 ## Instructions
 

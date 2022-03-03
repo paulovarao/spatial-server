@@ -46,27 +46,48 @@ function updateLayerInputInteractions() {
     const clearButtons = document.querySelectorAll('[layer-clear]')
     const checkBoxes = document.querySelectorAll('[layer-visible]')
     const colorInputs = document.querySelectorAll('[layer-color]')
+    const fileImports = document.querySelectorAll('[layer-import]')
+    const fileLoads = document.querySelectorAll('[layer-file]')
 
     Array.from(saveButtons).forEach(bt => bt.onclick = saveLayerAtRow)
     Array.from(clearButtons).forEach(bt => bt.onclick = clearLayerAtRow)
     Array.from(checkBoxes).forEach(cb => cb.onchange = changeVisibilityAtRow)
     Array.from(colorInputs).forEach(ci => ci.onchange = updateColorBackground)
+    Array.from(fileImports).forEach(fi => fi.onclick = importLayerFile)
+    Array.from(fileLoads).forEach(fl => fl.onchange = loadFile)
 
-    const updateButton = document.querySelector('[result-update]')
-    updateButton.onclick = processOperation
+    updateResultInteractions()
+}
+
+function updateParamsVisibility(hasParams) {
+    const hiddenElements = document.querySelectorAll('[menu-hidden-element]')
+    
+    const operationNotSelected = operationSelect.value == 'None'
+
+    hiddenElements.forEach(he => {
+        const paramsIsEmpty = he.hasAttribute('params-section') && !hasParams
+        if (operationNotSelected || paramsIsEmpty) he.classList.add('hidden')
+        else he.classList.remove('hidden')
+    })
 }
 
 function updateTableControls(params) {
     operationParams = params
     const entries = Object.entries(params)
+    let hasParams = false
     for (let i in entries) {
         const type = entries[i][1]
         const name = entries[i][0]
         
         if (name == 'result') new ResultRowTag(type)
         else if (type.includes('Wkt')) new LayerRowTag(i, name, type.includes('List'))
-        else new ParameterRowTag(i, name, 'number')
+        else {
+            new ParameterRowTag(i, name, 'number')
+            hasParams = true
+        }
     }
+
+    updateParamsVisibility(hasParams)
 
     updateLayerInputInteractions()
 }
@@ -81,27 +102,19 @@ function clearTableControls(table) {
     }
 }
 
-function updateParamsVisibility() {
-    const hiddenElements = document.querySelectorAll('[menu-hidden-element]')
-    if (operationSelect.value == 'None')
-        hiddenElements.forEach(he => he.classList.add('hidden'))
-    else
-        hiddenElements.forEach(he => he.classList.remove('hidden'))
-}
-
 function updateInputParameters() {
-    updateParamsVisibility()
-
     clearTableControls(paramsTable)
     
     clearTableControls(layersTable)
     clearTableControls(resultTable)
+
+    clearResultData()
     
     const operation = operationSelect.value
     if (operation != 'None') {
         const resource = geometryType.value.toLowerCase() + 's'
         const url = `${rootUrl}/${resource}/params/${operation}`
         fetch(url).then(handleErrors).then(response => response.json())
-            .then(updateTableControls)
+        .then(updateTableControls)
     }
 }

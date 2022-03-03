@@ -1,6 +1,8 @@
 const layersTable = document.querySelector('table[layers]')
 const inputLayers = [];
 
+let importedLayerRow
+
 class LayerRow {
     constructor(childNode) {
         this.rowNode = childNode.parentNode.parentNode
@@ -39,6 +41,8 @@ class LayerRow {
     }
 
     addLayerToMap(features, callback) {
+        this.removeLayerFromMap()
+
         if (features.length > 0) {
             if (this.id > -1) inputLayers[this.id] = new ol.layer.Vector()
 
@@ -71,6 +75,11 @@ class LayerRow {
         const layer = this.getLayer()
         layer.setVisible(this.visibleNode.checked)
     }
+
+    importLayer() {
+        const fileInput = this.rowNode.querySelector('[layer-file]')
+        fileInput.click()
+    }
 }
 
 class LayerRowTag extends RowTag {
@@ -80,6 +89,14 @@ class LayerRowTag extends RowTag {
         if (isArray) row.setAttribute('array', '')
         layersTable.appendChild(row)
     }
+    
+    createInputFile(idParam) {
+        const inputFile = document.createElement('input')
+        inputFile.setAttribute('type', 'file')
+        inputFile.setAttribute('class', 'hidden')
+        inputFile.setAttribute(idParam, '')
+        return this.createRowDataWithChild(inputFile)
+    }
 
     createDataArray() {
         return [
@@ -88,7 +105,9 @@ class LayerRowTag extends RowTag {
             this.createDisabledInput('text', 'layer-color'),
             this.createDisabledInput('checkbox', 'layer-visible'),
             this.createButton('layer-save', 'Save'),
-            this.createButton('layer-clear', 'Clear')
+            this.createButton('layer-import', 'Import'),
+            this.createButton('layer-clear', 'Clear'),
+            this.createInputFile('layer-file')
         ]
     }
 }
@@ -113,4 +132,9 @@ function changeVisibilityAtRow(event) {
     const layerRow = new LayerRow(event.target)
     const layer = layerRow.id == -1 ? resultLayer : inputLayers[layerRow.id]
     layerRow.updateVisibility(layer)
+}
+
+function importLayerFile(event) {
+    importedLayerRow = new LayerRow(event.target)
+    importedLayerRow.importLayer()
 }

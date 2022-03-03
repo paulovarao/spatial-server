@@ -48,6 +48,7 @@ updateGeometryTypeOptions()
 
 geometryType.onchange = () => {
     updateInteraction()
+    operationSelect.value = 'None'
     updateOperationOptions()
 }
 
