@@ -5,6 +5,7 @@ import static com.varaodev.spatialserver.exceptions.ExceptionGenerator.nullParam
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.locationtech.jts.geom.Point;
 import org.springframework.stereotype.Service;
@@ -89,6 +90,12 @@ public class MapPointService extends MapService {
 			results.add(p0.distanceKm(p1));
 		}
 		return results;
+	}
+	
+	public List<Double> radius(List<MapPoint> points) {
+		nullParamCheck(points, POINT_LIST_NAME);
+		
+		return points.stream().map(MapPoint::radius).collect(Collectors.toList());
 	}
 
 }

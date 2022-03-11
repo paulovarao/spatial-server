@@ -37,6 +37,19 @@ public class MapPolygonService extends MapService {
 		return results;
 	}
 
+	public StdPolygon difference(List<MapPolygon> polygons) {
+		nullParamCheck(polygons, POLYGON_LIST_NAME);
+		
+		Geometry result = polygons.isEmpty() ? new StdPolygon(polygons).wktGeometry() 
+				: polygons.get(0).wktGeometry();
+		
+		for (int i = 1; i < polygons.size(); i++) {
+			result = result.difference(polygons.get(i).wktGeometry());
+		}
+		
+		return new StdPolygon(result);
+	}
+
 	public StdPolygon intersection(List<MapPolygon> polygons) {
 		nullParamCheck(polygons, POLYGON_LIST_NAME);
 		

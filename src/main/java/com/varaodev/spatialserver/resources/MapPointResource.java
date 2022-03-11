@@ -61,6 +61,12 @@ public class MapPointResource extends OperationsResource<MapPointService> {
 		return ResponseEntity.ok().body(results);
 	}
 	
+	@PostMapping("/radius")
+	public ResponseEntity<List<Double>> radiusInKm(@RequestBody Input input) {
+		List<Double> results = service.radius(input.getPoints());
+		return ResponseEntity.ok().body(results);
+	}
+	
 	static class Input {
 		private List<MapPoint> points;
 		

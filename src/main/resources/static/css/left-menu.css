@@ -20,7 +20,7 @@ aside {
 
 aside > * {
     border: inherit;
-    padding: 5px;
+    padding: 5px 0px;
 }
 
 aside h2 {
@@ -51,8 +51,37 @@ aside > button {
     color: inherit;
 }
 
-[toggle-hidden-menu] div {
-    border-top: solid 2px #FFFFFE;
+[tab-content] > div > div {
+    border-bottom: solid 2px #FFFFFE;
+    margin: 0px 5px;
+}
+
+[tab-menu] {
+    display: flex;
+    justify-content: flex-start;
+    margin: 0px;
+    padding: 0px;
+}
+
+.tab-button {
+    background: #333;
+    padding: 10px;
+    width: 100px;
+    text-align: center;
+    cursor: pointer;
+    color: #AAA;
+    font-size: inherit;
+    font-style: inherit;
+    border: none;
+}
+
+[tab-content] {
+    border-top: solid 4px #FFFFFE;
+}
+
+.selected-tab {
+    background-color: #FFFFFE;
+    color: #333;
 }
 
 .disabled-input {

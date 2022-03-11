@@ -2,9 +2,8 @@
 
 ## TO DO
 
-- improve area calculation (distance between ellipsoid points)
+- polygon difference
 - limit elements in input arrays
-
 
 ## Technologies
 

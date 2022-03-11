@@ -22,8 +22,6 @@ public class MapPoint extends PointModel implements WktModel<Point> {
 	 * Default unit: degree
 	 */
 	
-	private static final double MIN_ANGLE_PRECISION = 0.00001;
-	
 	private static final long serialVersionUID = 1L;
 	
 	public static final Double DEGREES_TO_RADIANS = Math.PI/180;
@@ -157,20 +155,34 @@ public class MapPoint extends PointModel implements WktModel<Point> {
 	public double distanceKm(MapPoint point) {
 		if (equals(point)) return 0.0;
 		
-		double distanceDeg = distance(point);
-		int parts = (int) Math.ceil(distanceDeg/MIN_ANGLE_PRECISION);
+		// Lambert's formula for long lines method
 		
-		// divide distance in small arcs/parts
-		List<MapPoint> list = interpolation(point, parts);
-		double sum = 0.0;
-		SpacePoint sp0 = toSpacePoint();
-		for (MapPoint p : list) {
-			SpacePoint sp = p.toSpacePoint();
-			sum += sp0.arcDistance(sp);
-			sp0 = sp;
-		}
+		double a = SimpleEarth.EQUATOR_AXIS_KM, b = SimpleEarth.POLAR_AXIS_KM;
 		
-		return sum;
+		double f = (a - b)/a;
+		
+		MapPoint p1rad = toRadian(), p2rad = point.toRadian();
+		
+		double beta1 = Math.atan( (1 - f)*Math.tan(p1rad.y) );
+		double beta2 = Math.atan( (1 - f)*Math.tan(p2rad.y) );
+		
+		double p = (beta1 + beta2)/2;
+		double q = (beta1 - beta2)/2;
+		
+		double dx = Math.cos(p2rad.y)*Math.cos(p2rad.x) - Math.cos(p1rad.y)*Math.cos(p1rad.x);
+		double dy = Math.cos(p2rad.y)*Math.sin(p2rad.x) - Math.cos(p1rad.y)*Math.sin(p1rad.x);
+		double dz = Math.sin(p2rad.y) - Math.sin(p1rad.y);
+		
+		double c = Math.sqrt(dx*dx + dy*dy + dz*dz);
+		double sigma = 2*Math.asin(c/2);
+		
+		double x = (sigma - Math.sin(sigma))*Math.pow(Math.sin(p), 2)*Math.pow(Math.cos(q), 2)
+				/Math.pow(Math.cos(sigma/2), 2);
+		
+		double y = (sigma + Math.sin(sigma))*Math.pow(Math.cos(p), 2)*Math.pow(Math.sin(q), 2)
+				/Math.pow(Math.sin(sigma/2), 2);
+		
+		return a * (sigma - (x + y)*f/2);
 	}
 
 	public MapPoint invertLongitude() {
@@ -264,12 +276,7 @@ public class MapPoint extends PointModel implements WktModel<Point> {
 		return linearDistance / factor;
 	}
 	
-	// private methods
-	private double convertLinearToAngularDistanceInRadians(double linearDistance) {
-		return convertLinearToAngularDistanceInDegrees(linearDistance) * DEGREES_TO_RADIANS;
-	}
-	
-	private Double radius() {
+	public Double radius() {
 		MapPoint p = toRadian();
 		
 		// uses ellipse equation
@@ -277,6 +284,11 @@ public class MapPoint extends PointModel implements WktModel<Point> {
 		Double asin = a*a*Math.pow(Math.sin(p.getY()), 2);
 		Double bcos = b*b*Math.pow(Math.cos(p.getY()), 2);
 		return a * b / Math.sqrt( asin + bcos );
+	}
+	
+	// private methods
+	private double convertLinearToAngularDistanceInRadians(double linearDistance) {
+		return convertLinearToAngularDistanceInDegrees(linearDistance) * DEGREES_TO_RADIANS;
 	}
 	
 	private Double theta() {

@@ -29,6 +29,12 @@ public class MapPolygonResource extends OperationsResource<MapPolygonService> {
 		return ResponseEntity.ok().body(results);
 	}
 	
+	@PostMapping("/difference")
+	public ResponseEntity<List<String>> difference(@RequestBody Input input) {
+		StdPolygon result = service.difference(input.getPolygons());
+		return ResponseEntity.ok().body(List.of(result.toString()));
+	}
+	
 	@PostMapping("/intersection")
 	public ResponseEntity<List<String>> intersection(@RequestBody Input input) {
 		StdPolygon result = service.intersection(input.getPolygons());

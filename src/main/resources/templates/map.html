@@ -3,20 +3,30 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>Spatial Server - Map</title>
+    <title>Spatial Server</title>
 
-    <!-- no internet connection -->
-    <link href="../static/ol/ol.css" rel="stylesheet" type="text/css" />
-	<script src="../static/ol/ol.js" type="text/javascript"></script>
-    
+    <!-- server source 
+    <link href="/ol/ol.css" rel="stylesheet" type="text/css" />
+	<script src="/ol/ol.js" type="text/javascript"></script>
 
-    <!-- internet connection 
-    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/build/ol.js"></script>
-    <link rel="stylesheet" type="text/css"
-        href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/css/ol.css">
+    <script src="/sat/satellite.js" type="text/javascript"></script>
     -->
 
-    <!-- server source
+    <!-- for frontend tests only -->
+    <link href="../static/ol/ol.css" rel="stylesheet" type="text/css" />
+	<script src="../static/ol/ol.js" type="text/javascript"></script>
+
+    <script src="../static/sat/satellite.js" type="text/javascript"></script>
+    
+    
+    <!-- internet connection 
+        <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/build/ol.js"></script>
+        <link rel="stylesheet" type="text/css"
+        href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.9.0/css/ol.css">
+    -->
+    
+    
+    <!-- server source 
     <link rel="stylesheet" href="/css/skeleton.css">
     <link rel="stylesheet" href="/css/header.css">
     <link rel="stylesheet" href="/css/section.css">
@@ -36,81 +46,147 @@
     <link rel="stylesheet" href="../static/css/map.css">
     <link rel="stylesheet" href="../static/css/hidden.css">
     <link rel="stylesheet" href="../static/css/generics.css">
+    
 </head>
 
 <body>
+    
     <header>
         <span id="header-title">SPATIAL SERVER</span>
         <nav>
             <button id="about-bt" class="generic-bt">About</button>
         </nav>
     </header>
+    
     <section>
         <div id="map"></div>
         <div id="mouse-position"></div>
     </section>
+    
     <footer>
         <span id="developer-info">Var@oDev</span>
     </footer>
+    
     <aside class="aside-hidden">
-        <div toggle-hidden-menu>
-            <h2>Geometry menu</h2>
-            <div id="geometry-input">
-                <h4>Draw type</h4>
-                <label for="geometry-type">Geometry type</label>
-                <select id="geometry-type" class="generic-sl">
-                    <option value="None">None</option>
-                </select>
-                <input  id="toggle-draw" type="checkbox" checked="true">
-                <button id="clear" class="generic-bt">Clear</button>
+        
+        <div class="tab">
+            
+            <div tab-menu>
+                <button class="tab-button selected-tab">Geometry</button>
+                <button class="tab-button">Satellite</button>
             </div>
-            <div id="operation-input">
-                <h4>Operation type</h4>
-                <label for="operation">Operation</label>
-                <select id="operation" class="generic-sl">
-                    <option value="None">None</option>
-                </select>
+            
+            <div tab-content>
+                
+                <div id="geometry">
+                    
+                    <div id="geometry-input">
+                        <h4>Draw type</h4>
+                        <label for="geometry-type">Geometry type</label>
+                        <select id="geometry-type" class="generic-sl">
+                            <option value="None">None</option>
+                        </select>
+                        <input  id="toggle-draw" type="checkbox" checked="true">
+                        <button id="clear" class="generic-bt">Clear</button>
+                    </div>
+                    
+                    <div id="operation-input">
+                        <h4>Operation type</h4>
+                        <label for="operation">Operation</label>
+                        <select id="operation" class="generic-sl">
+                            <option value="None">None</option>
+                        </select>
+                    </div>
+                    
+                    <div class="hidden" menu-hidden-element> 
+                        <h4>Layers</h4>
+                        <table layers></table>
+                    </div>
+                    
+                    <div class="hidden" menu-hidden-element params-section>
+                        <h4>Parameters</h4>
+                        <table parameters></table>
+                    </div>
+                    
+                    <div class="hidden" menu-hidden-element>
+                        <h4>Result</h4>
+                        <table result></table>
+                        <textarea result-text rows="5" cols="20" readonly></textarea>
+                    </div>
+
+                </div>
+                
+                <div id="satellite" class="hidden">
+                    <div parameters>
+                        <h4>Parameters</h4>
+                        <table>
+                            <tr>
+                                <td>Satellite ID</td>
+                                <td><input id="sat-id" type="number"></td>
+                            </tr>
+                            <tr>
+                                <td>Max Look Angle</td>
+                                <td><input id="max-LA" type="number"></td>
+                            </tr>
+                            <tr>
+                                <td>Min Look Angle</td>
+                                <td><input id="min-LA" type="number"></td>
+                            </tr>
+                            <tr>
+                                <td>Begin</td>
+                                <td><input id="begin" type="datetime-local"></td>
+                            </tr>
+                            <tr>
+                                <td>End</td>
+                                <td><input id="end" type="datetime-local"></td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <button id="sat-update" class="generic-bt">Update</button>
+
+                </div>
+
             </div>
-            <div class="hidden" menu-hidden-element> 
-                <h4>Layers</h4>
-                <table layers></table>
-            </div>
-            <div class="hidden" menu-hidden-element params-section>
-                <h4>Parameters</h4>
-                <table parameters></table>
-            </div>
-            <div class="hidden" menu-hidden-element>
-                <h4>Result</h4>
-                <table result></table>
-                <textarea result-text rows="5" cols="20" readonly></textarea>
-            </div>
+
         </div>
+        
         <button toggle-bt>></button>
+    
     </aside>
+    
     <div id="wrapper" class="hidden">
+        
         <div id="about" class="card hidden">
+            
             <div class="hidden-header">
                 <h2>About</h2>
                 <button class="generic-bt">X</button>
             </div>
+            
             <div id="about-content">
-                Provider of basic spatial operations resources.
+                This server allows the user to manipulate geometries by doing basic operations 
+                such as buffering, union, difference and intersection. It also provides a satellite module 
+                to easily estimate orbit propagation and calculate access to geometries.
             </div>
+
         </div>
 
         <div id="alert" class="card hidden">
+            
             <div class="hidden-header">
                 <h2>Error</h2>
                 <button class="generic-bt">X</button>
             </div>
+            
             <div id="alert-message"></div>
         </div>
+
     </div>
 
     <a download="report.txt" id="downloadlink" style="display: none"></a>
 
-    <!-- server source -->
-    <!--
+    <!-- server source 
     <script src="/js/hidden-cards.js"></script>
     <script src="/js/left-menu.js"></script>
     <script src="/js/backend.js"></script>
@@ -125,6 +201,7 @@
     <script src="/js/export.js"></script>
     <script src="/js/result.js"></script>
     <script src="/js/map.js"></script>
+    <script src="/js/satellite/satellite.js"></script>
     -->
     
     <!-- for frontend tests only -->
@@ -142,6 +219,8 @@
     <script src="../static/js/export.js"></script>
     <script src="../static/js/result.js"></script>
     <script src="../static/js/map.js"></script>
+    <script src="../static/js/satellite/satellite.js"></script>
+    
 </body>
 
 </html>
