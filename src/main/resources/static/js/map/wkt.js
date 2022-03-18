@@ -1,19 +1,13 @@
-function loadFile() {
-    const fr = new FileReader()
-    fr.onload = () => {
-        const array = JSON.parse(fr.result)
-        const features = array.map(wkt => wktFormat.readFeature(wkt, defaultProjection))
-        const validFeatures = geometryValidation(features)
-        if (validFeatures) importedLayerRow.addLayerToMap(singleFeatures(features))
-        else errorAlert("Imported features geometry type must be " + geometryType.value)
-    }
-    fr.readAsText(this.files[0])
+const wktFormat = new ol.format.WKT()
+
+function wktGeometries(features) {
+    return features.map(f => wktFormat.writeGeometry(f.getGeometry(), mapControls.defaultProjection))
 }
 
 function geometryValidation(features) {
     for (let f of features) {
         const type = f.getGeometry().getType()
-        if (!type.includes(geometryType.value)) return false;
+        if (!type.includes(drawGeometry.value)) return false;
     }
     return true
 }

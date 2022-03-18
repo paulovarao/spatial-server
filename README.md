@@ -2,7 +2,7 @@
 
 ## TO DO
 
-- polygon difference
+- Open topo data / open elevation
 - limit elements in input arrays
 
 ## Technologies

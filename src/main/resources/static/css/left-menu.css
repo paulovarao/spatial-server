@@ -51,7 +51,7 @@ aside > button {
     color: inherit;
 }
 
-[tab-content] > div > div {
+[tab-content] > div {
     border-bottom: solid 2px #FFFFFE;
     margin: 0px 5px;
 }

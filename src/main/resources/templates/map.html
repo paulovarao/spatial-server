@@ -72,79 +72,44 @@
         <div class="tab">
             
             <div tab-menu>
-                <button class="tab-button selected-tab">Geometry</button>
-                <button class="tab-button">Satellite</button>
+                <button id="geometry-tab" class="tab-button selected-tab">Geometry</button>
+                <button id="satellite-tab" class="tab-button">Satellite</button>
             </div>
             
             <div tab-content>
                 
-                <div id="geometry">
-                    
-                    <div id="geometry-input">
-                        <h4>Draw type</h4>
-                        <label for="geometry-type">Geometry type</label>
-                        <select id="geometry-type" class="generic-sl">
-                            <option value="None">None</option>
-                        </select>
-                        <input  id="toggle-draw" type="checkbox" checked="true">
-                        <button id="clear" class="generic-bt">Clear</button>
-                    </div>
-                    
-                    <div id="operation-input">
-                        <h4>Operation type</h4>
-                        <label for="operation">Operation</label>
-                        <select id="operation" class="generic-sl">
-                            <option value="None">None</option>
-                        </select>
-                    </div>
-                    
-                    <div class="hidden" menu-hidden-element> 
-                        <h4>Layers</h4>
-                        <table layers></table>
-                    </div>
-                    
-                    <div class="hidden" menu-hidden-element params-section>
-                        <h4>Parameters</h4>
-                        <table parameters></table>
-                    </div>
-                    
-                    <div class="hidden" menu-hidden-element>
-                        <h4>Result</h4>
-                        <table result></table>
-                        <textarea result-text rows="5" cols="20" readonly></textarea>
-                    </div>
-
+                <div draw>
+                    <h4>Draw type</h4>
+                    <label for="geometry-type">Geometry type</label>
+                    <select id="geometry-type" class="generic-sl">
+                        <option value="None">None</option>
+                    </select>
+                    <input  id="toggle-draw" type="checkbox" checked="true">
+                    <button id="clear" class="generic-bt">Clear</button>
                 </div>
                 
-                <div id="satellite" class="hidden">
-                    <div parameters>
-                        <h4>Parameters</h4>
-                        <table>
-                            <tr>
-                                <td>Satellite ID</td>
-                                <td><input id="sat-id" type="number"></td>
-                            </tr>
-                            <tr>
-                                <td>Max Look Angle</td>
-                                <td><input id="max-LA" type="number"></td>
-                            </tr>
-                            <tr>
-                                <td>Min Look Angle</td>
-                                <td><input id="min-LA" type="number"></td>
-                            </tr>
-                            <tr>
-                                <td>Begin</td>
-                                <td><input id="begin" type="datetime-local"></td>
-                            </tr>
-                            <tr>
-                                <td>End</td>
-                                <td><input id="end" type="datetime-local"></td>
-                            </tr>
-                        </table>
-                    </div>
-
-                    <button id="sat-update" class="generic-bt">Update</button>
-
+                <div operation>
+                    <h4>Operation type</h4>
+                    <label for="operation">Operation</label>
+                    <select id="operation" class="generic-sl">
+                        <option value="None">None</option>
+                    </select>
+                </div>
+                
+                <div class="hidden">
+                    <h4>Parameters</h4>
+                    <table parameters></table>
+                </div>
+                
+                <div class="hidden"> 
+                    <h4>Layers</h4>
+                    <table layers></table>
+                </div>
+                
+                <div class="hidden">
+                    <h4>Result</h4>
+                    <table result></table>
+                    <textarea result-text rows="5" cols="20" readonly></textarea>
                 </div>
 
             </div>
@@ -187,39 +152,60 @@
     <a download="report.txt" id="downloadlink" style="display: none"></a>
 
     <!-- server source 
-    <script src="/js/hidden-cards.js"></script>
+    <script src="/js/decorations/hidden-cards.js"></script>
     <script src="/js/left-menu.js"></script>
     <script src="/js/backend.js"></script>
-    <script src="/js/input-row.js"></script>
-    <script src="/js/input-layers.js"></script>
+    <script src="/js/geometry/input-row.js"></script>
+    <script src="/js/geometry/input-layers.js"></script>
     <script src="/js/layer-styles.js"></script>
     <script src="/js/layer-color.js"></script>
-    <script src="/js/input-parameters.js"></script>
-    <script src="/js/operation.js"></script>
-    <script src="/js/draw.js"></script>
+    <script src="/js/geometry/input-parameters.js"></script>
+    <script src="/js/geometry/operation.js"></script>
+    <script src="/js/geometry/draw.js"></script>
     <script src="/js/import.js"></script>
     <script src="/js/export.js"></script>
-    <script src="/js/result.js"></script>
+    <script src="/js/geometry/result.js"></script>
     <script src="/js/map.js"></script>
     <script src="/js/satellite/satellite.js"></script>
     -->
     
     <!-- for frontend tests only -->
-    <script src="../static/js/hidden-cards.js"></script>
-    <script src="../static/js/left-menu.js"></script>
-    <script src="../static/js/backend.js"></script>
-    <script src="../static/js/input-row.js"></script>
-    <script src="../static/js/input-layers.js"></script>
-    <script src="../static/js/layer-styles.js"></script>
-    <script src="../static/js/layer-color.js"></script>
-    <script src="../static/js/input-parameters.js"></script>
-    <script src="../static/js/operation.js"></script>
-    <script src="../static/js/draw.js"></script>
-    <script src="../static/js/import.js"></script>
-    <script src="../static/js/export.js"></script>
-    <script src="../static/js/result.js"></script>
-    <script src="../static/js/map.js"></script>
-    <script src="../static/js/satellite/satellite.js"></script>
+    <script src="../static/js/hidden-cards/hidden-cards.js"></script>
+
+    <script src="../static/js/left-menu/toggle/button.js"></script>
+    <script src="../static/js/left-menu/server/backend.js"></script>
+    
+    <script src="../static/js/map/layer-styles.js"></script>
+    <script src="../static/js/map/layer-color.js"></script>
+    <script src="../static/js/map/layer.js"></script>
+    <script src="../static/js/map/wkt.js"></script>
+    
+    <script src="../static/js/left-menu/tab/menu/buttons.js"></script>
+    
+    <script src="../static/js/left-menu/tab/content/table/table.js"></script>
+    <script src="../static/js/left-menu/tab/content/table/row/row.js"></script>
+    <script src="../static/js/left-menu/tab/content/table/row/parameter/row.js"></script>
+    <script src="../static/js/left-menu/tab/content/table/row/layer/import.js"></script>
+    <script src="../static/js/left-menu/tab/content/table/row/layer/row.js"></script>
+    <script src="../static/js/left-menu/tab/content/table/row/result/export.js"></script>
+    <script src="../static/js/left-menu/tab/content/table/row/result/row.js"></script>
+    
+    <script src="../static/js/left-menu/tab/content/geometry/select.js"></script>
+    <script src="../static/js/left-menu/tab/content/geometry/table.js"></script>
+    
+    <script src="../static/js/left-menu/tab/content/geometry/draw/select.js"></script>
+    <script src="../static/js/left-menu/tab/content/geometry/draw/checkbox.js"></script>
+    <script src="../static/js/left-menu/tab/content/geometry/draw/button.js"></script>
+    
+    <script src="../static/js/left-menu/tab/content/geometry/operation/select.js"></script>
+    
+    <script src="../static/js/left-menu/tab/content/satellite/coordinate.js"></script>
+    <script src="../static/js/left-menu/tab/content/satellite/satellite.js"></script>
+    <script src="../static/js/left-menu/tab/content/satellite/table.js"></script>
+    
+    <script src="../static/js/map/map.js"></script>
+    
+    <script src="../static/js/test.js"></script>
     
 </body>
 

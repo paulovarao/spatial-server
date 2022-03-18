@@ -1,13 +1,11 @@
-const paramsTable = document.querySelector('table[parameters]')
-
-class ParameterRowTag extends RowTag {
+class ParameterRow extends Row {
     constructor(id, name, type) {
         super(id, name)
-
         this.type = type
+    }
 
-        const row = this.createTableRow('param-control', this.createDataArray())
-        paramsTable.appendChild(row)
+    getElement() {
+        return this.createTableRow('param-control', this.createDataArray())
     }
 
     createDataArray() {
