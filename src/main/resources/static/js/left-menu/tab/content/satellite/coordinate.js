@@ -17,6 +17,7 @@ class SatelliteCoordinate {
             .then(handleErrors)
             .then(response => response.json())
             .then(res => res[0])
+            .catch(errorAlert)
     }
 
     getRange(lookAngle) {
@@ -38,6 +39,7 @@ class SatelliteCoordinate {
         const polygons = await fetch(url, requestParams('POST', body))
             .then(handleErrors)
             .then(response => response.json())
+            .catch(errorAlert)
 
         return polygons
     }

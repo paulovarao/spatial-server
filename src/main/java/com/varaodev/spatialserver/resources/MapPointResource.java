@@ -67,6 +67,12 @@ public class MapPointResource extends OperationsResource<MapPointService> {
 		return ResponseEntity.ok().body(results);
 	}
 	
+	@PostMapping("/elevation")
+	public ResponseEntity<List<Double>> elevationInMeters(@RequestBody Input input) {
+		List<Double> results = service.elevation(input.getPoints());
+		return ResponseEntity.ok().body(results);
+	}
+	
 	static class Input {
 		private List<MapPoint> points;
 		

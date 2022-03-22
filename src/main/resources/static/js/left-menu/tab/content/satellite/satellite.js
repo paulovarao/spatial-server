@@ -10,6 +10,7 @@ async function getLatestTLE(catNumber) {
             tleData.line2 = data[2]
             return tleData
         })
+        // .catch(errorAlert)
     return tle
 }
 
@@ -46,7 +47,7 @@ function multiToSinglePolygon(polygon) {
 
 async function getFieldOfViews(coordinates, lookAngle) {
     const maxRangePols = []
-    for (let c of coordinates) maxRangePols.push(await c.rangeBuffer(lookAngle, 16))
+    for (let c of coordinates) maxRangePols.push(await c.rangeBuffer(lookAngle, 24))
     
     const instantFOVs = []
     maxRangePols.forEach( pol => pol.forEach( p => multiToSinglePolygon(p).forEach(sp => instantFOVs.push(sp)) ) )
@@ -59,33 +60,65 @@ async function union(polygons) {
     return result
 }
 
+async function difference(polygons) {
+    const url = `${rootUrl}/polygons/difference`
+    const result = await fetch(url, requestParams('POST', { polygons })).then(res => res.json())
+    return result
+}
+
+async function flatEdges(coordinates, tle, lookAngle) {
+    const firstAndLast = [coordinates[0], coordinates[coordinates.length-1]]
+    const edges = []
+    for (let i in firstAndLast) {
+        const c1 = firstAndLast[i]
+        const r1 = c1.getRange(lookAngle)
+        const timeInterval = r1 * 250 // conversion factor
+        const timeDifference = i == 0 ? -timeInterval : timeInterval
+        const t = new Date(c1.time.getTime() + timeDifference)
+
+        const c2 = getSatelliteCoordinates(tle, t)
+        await c2.updateRadius()
+        const r2 = c2.getRange(lookAngle)
+
+        const url = `${rootUrl}/points/line-buffer`
+        const body = { 
+            points: [c1.getPoint(), c2.getPoint()], 
+            distanceInKm: Math.max(r1, r2) * 1.4
+        }
+        const lineBuffer = await fetch(url, requestParams('POST', body)).then(res => res.json())
+        multiToSinglePolygon(lineBuffer[0]).forEach(p => edges.push(p))
+    }
+    return edges
+}
+
 async function satelliteOpportunities() {
     const inputs = requestInputs()
-    const catNumber = inputs.satelliteId
-    const maxLookAngleDeg = inputs.maxLookAngle, minLookAngleDeg = inputs.minLookAngle
-    const begin = inputs.begin, end = inputs.end
+    const stepInSeconds = 1
 
-    const stepInSeconds = 5
-
-    const timeArray = datetimeArray(begin, end, stepInSeconds)
-    const tle = await getLatestTLE(catNumber)
+    const timeArray = datetimeArray(inputs.begin, inputs.end, stepInSeconds)
+    const tle = await getLatestTLE(inputs.satelliteId)
 
     const coordinates = timeArray.map(t => getSatelliteCoordinates(tle, t))
     for (let c of coordinates) await c.updateRadius()
 
-    const maxPolygons = await getFieldOfViews(coordinates, maxLookAngleDeg)
-    const minPolygons = await getFieldOfViews(coordinates, minLookAngleDeg)
+    let result = await getFieldOfViews(coordinates, inputs.maxLookAngle).then(union)
+    
+    if (inputs.minLookAngle > 0) {
+        const minRange = await getFieldOfViews(coordinates, inputs.minLookAngle).then(union)
+        
+        // include line buffers to remove round edges
+        const edges = await flatEdges(coordinates, tle, inputs.maxLookAngle)
 
-    let result = await union(maxPolygons)
+        const results = []
+        for (let pol of multiToSinglePolygon(result[0])) {
+            const array = [pol]
+            multiToSinglePolygon(minRange[0]).forEach(p => array.push(p))
+            edges.forEach(e => array.push(e))
+            const rp = await difference(array)
+            multiToSinglePolygon(rp[0]).forEach(p => results.push(p))
+        }
 
-    if (minPolygons.length > 0) {
-        const minRange = await union(minPolygons)
-
-        // CORRECT THIS (iterate over arrays to consider all parts)
-        const body = { polygons: [multiToSinglePolygon(result[0])[0], multiToSinglePolygon(minRange[0])[0]] }
-
-        url = `${rootUrl}/polygons/difference`
-        result = await fetch(url, requestParams('POST', body)).then(res => res.json())
+        result = await union(results)
     }
 
     return result

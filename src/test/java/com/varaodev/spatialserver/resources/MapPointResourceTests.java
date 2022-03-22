@@ -21,6 +21,21 @@ public class MapPointResourceTests extends ResourceTests {
 	}
 	
 	@Test
+	void elevation() throws Exception {
+		MockHttpServletRequestBuilder mockBuilder = defaultBuilder("/elevation");
+		
+		Map<String, Object> input = new LinkedHashMap<>();
+		List<String> points = new ArrayList<>();
+		points.add("POINT (-45 -15)");
+		points.add("POINT (-47 -17)");
+		points.add("POINT (-44 -14)");
+		input.put("points", points);
+		
+		RequestBuilder builder = mockBuilder.content(toJson(input));
+		performMock(builder, status().isOk());
+	}
+	
+	@Test
 	void circularBuffer() throws Exception {
 		MockHttpServletRequestBuilder mockBuilder = defaultBuilder("/circular-buffer");
 		

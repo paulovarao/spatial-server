@@ -6,19 +6,26 @@ import static com.varaodev.spatialserver.exceptions.ExceptionGenerator.nullParam
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.locationtech.jts.geom.Point;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.varaodev.spatialserver.model.MapPoint;
 import com.varaodev.spatialserver.model.MapPoints;
 import com.varaodev.spatialserver.model.StdPolygon;
+import com.varaodev.spatialserver.resources.ElevationResource;
+import com.varaodev.spatialserver.resources.dto.Elevation;
 
 @Service
 public class MapPointService extends MapService {
 	
 	private final String POINT_LIST_NAME = "Point list";
 	private final String DISTANCE_KM_NAME = "Distance";
+	
+	@Autowired
+	private ElevationResource elevationResource;
 	
 	public List<StdPolygon> rectangularBuffer(List<MapPoint> points, Double widthInKm,
 			Double lengthInKm, Double azimuthInDegrees) {
@@ -97,5 +104,19 @@ public class MapPointService extends MapService {
 		
 		return points.stream().map(MapPoint::radius).collect(Collectors.toList());
 	}
-
+	
+	public List<Double> elevation(List<MapPoint> points) {
+		nullParamCheck(points, POINT_LIST_NAME);
+		
+		List<String> locations = points.stream().map(p -> p.latLonValue()).collect(Collectors.toList());
+		List<Elevation> elevations = elevationResource.openTopoData(getStringLocations(locations));
+		return elevations.stream().map(e -> e.getElevation()).collect(Collectors.toList());
+	}
+	
+	private String getStringLocations(List<String> locations) {
+		return IntStream.range(0, locations.size()).boxed()
+				.map(i -> i == 0 ? locations.get(i)	: "|" + locations.get(i))
+				.reduce("", (a,s) -> a+s);
+	}
+	
 }

@@ -3,7 +3,11 @@
 ## TO DO
 
 - Open topo data / open elevation
+- Flat edges for satellite orbits
+- display errors for satellite
+- select satellite using name
 - limit elements in input arrays
+- all available endpoints
 
 ## Technologies
 
@@ -15,11 +19,20 @@
 
 ## Libraries
 
+### Java
+
 * JTS
+
+### Javascript
+
+* Satellite (shashwatak)
+* OpenLayers
 
 ## APIs
 
-* OpenLayers
+* CelesTrak
+* Open Topo data
+* Open Elevation
 
 ## Services
 
