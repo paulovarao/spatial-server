@@ -5,6 +5,7 @@
 - Open topo data / open elevation
 - Flat edges for satellite orbits
 - display errors for satellite
+- filter polygon access
 - select satellite using name
 - limit elements in input arrays
 - all available endpoints
@@ -36,25 +37,35 @@
 
 ## Services
 
-### 1) Points
+### Geometries
 
-* Rotation around a centroid
+#### 1) Points
+
+* Distance from Earth center (ellipsoid radius)
+* Elevation
+* Rotation around another point
+* Distance between points
 * Linear interpolation
 * Circular buffer
 * Rectangular buffer
-* Distance calculation (considering the Earth as a spheroid)
 
-### 2) Lines
+#### 2) Lines
 
 * Buffer
 
-### 2) Polygons
+#### 3) Polygons
 
 * Area
-* Intersection between polygons
-* Mosaic
 * Simplification of non simple polygons
 * Union of polygons
+* Intersection between polygons
+* Difference between polygons
+* Mosaic
+
+### Satellite
+
+* Field of View
+* Access to polygons
 
 ## Instructions
 

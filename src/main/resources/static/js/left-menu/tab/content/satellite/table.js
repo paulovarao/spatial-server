@@ -1,7 +1,7 @@
 function buildSatelliteSection() {
     const classifiedRows = {
         paramRows: satelliteParametersRows(), 
-        layerRows: [], 
+        layerRows: [], // satelliteLayerRows(), 
         resultRows: satelliteResultRows()
     }
     updateTables(classifiedRows)
@@ -17,6 +17,11 @@ function satelliteParametersRows() {
 }
 
 function satelliteResultRows() {
-    const result = new ResultRow(0, 'result', 'List.Wkt', updateSatelliteOrbit).getElement()
+    const result = new ResultRow(0, 'result', 'List.Wkt', updateSatelliteFOV).getElement()
     return [result]
+}
+
+function satelliteLayerRows() {
+    const layer = new LayerRow(1, 'target', 'List.Wkt').getElement()
+    return [layer]
 }

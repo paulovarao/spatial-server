@@ -89,25 +89,15 @@ public class MapPoint extends PointModel implements WktModel<Point> {
 		
 		checkValueIsGreaterThanZero(distanceKm, "distance");
 		
-		double dX = getX() - p.x;
-		double dY = getY() - p.y;
-		
 		// calculates the inclination of the line between the two points
-		double inclinAngle = dX == 0 ? Math.PI/2 : Math.atan(dY/dX);
+		double inclinAngle = inclinationAngle(p);
 		
 		List<MapPoint> points = new ArrayList<>();
 		for (MapPoint mapPoint : List.of(this, p)) {
-			SpacePoint sp = mapPoint.toSpacePoint();
-			LinkedHashMap<Double, Double> azimuthMap = new LinkedHashMap<>();
 			
 			// converts distance in km to Earth angle in rad
 			double angleRad = mapPoint.convertLinearToAngularDistanceInRadians(distanceKm);
-			
-			// calculates the perpendicular azimuths
-			for (int i = 0; i < 2; i++) azimuthMap.put(i*Math.PI - inclinAngle, angleRad);
-			
-			points.addAll(sp.buffer(azimuthMap).stream().map(SpacePoint::toMapPoint)
-					.collect(Collectors.toList()));
+			points.addAll(mapPoint.orthogonalPoints(angleRad, inclinAngle));
 		}
 		// reorders it to create a polygon more easily
 		List<MapPoint> result = new ArrayList<>(List.of(points.get(0), points.get(1), points.get(3), 
@@ -246,6 +236,24 @@ public class MapPoint extends PointModel implements WktModel<Point> {
 		}
 		list.add(p);
 		return list;
+	}
+	
+	public double inclinationAngle(MapPoint point) {
+		double dX = getX() - point.x;
+		double dY = getY() - point.y;
+		
+		// calculates the inclination of the line between the two points
+		return dX == 0 ? Math.PI/2 : Math.atan(dY/dX);
+	}
+	
+	public List<MapPoint> orthogonalPoints(double distanceAngleRad, double inclinationAngleRad) {
+		SpacePoint sp = toSpacePoint();
+		LinkedHashMap<Double, Double> azimuthMap = new LinkedHashMap<>();
+		
+		// calculates the orthogonal azimuths
+		for (int i = 0; i < 2; i++) azimuthMap.put(i*Math.PI - inclinationAngleRad, distanceAngleRad);
+		
+		return sp.buffer(azimuthMap).stream().map(SpacePoint::toMapPoint).collect(Collectors.toList());
 	}
 	
 	public MapPoint offset(double xo, double yo) {

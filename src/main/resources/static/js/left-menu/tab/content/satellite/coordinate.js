@@ -10,17 +10,20 @@ class SatelliteCoordinate {
         return `POINT(${this.longitude} ${this.latitude})`
     }
 
-    async updateRadius() {
-        const url = `${rootUrl}/points/radius`
-        fetch(url, requestParams('POST', { points: [this.getPoint()] }))
-        this.radius = await fetch(url, requestParams('POST', { points: [this.getPoint()] }))
-            .then(handleErrors)
-            .then(response => response.json())
-            .then(res => res[0])
-            .catch(errorAlert)
+    getObject() {
+        return { longitude: this.longitude, 
+            latitude: this.latitude, 
+            time: this.time, altitude: this.height }
     }
 
-    getRange(lookAngle) {
+    async updateRadius() {
+        const radiusArray = await radius([this.getPoint()])
+        this.radius = radiusArray[0]
+    }
+
+    async getRange(lookAngle) {
+        if (!this.radius) await this.updateRadius()
+        
         const degreesToRadians = Math.PI / 180
         const laRad = lookAngle * degreesToRadians
 
@@ -29,18 +32,8 @@ class SatelliteCoordinate {
     }
 
     async rangeBuffer(lookAngle, azimuths) {
-        const body = {
-            points: [this.getPoint()],
-            distanceInKm: this.getRange(lookAngle),
-            numberOfAzimuths: azimuths
-        }
-
-        const url = `${rootUrl}/points/circular-buffer`
-        const polygons = await fetch(url, requestParams('POST', body))
-            .then(handleErrors)
-            .then(response => response.json())
-            .catch(errorAlert)
-
-        return polygons
+        const range = await this.getRange(lookAngle)
+        const polygons = await circularBuffer([this.getPoint()], range, azimuths)
+        return polygons[0]
     }
 }
