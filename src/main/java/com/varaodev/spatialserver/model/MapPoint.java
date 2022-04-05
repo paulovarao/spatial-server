@@ -239,7 +239,10 @@ public class MapPoint extends PointModel implements WktModel<Point> {
 	}
 	
 	public double inclinationAngle(MapPoint point) {
-		double dX = getX() - point.x;
+		double factor = crossedMapLonLimit(point) ? 360	: 0;
+		if (getX() > 0) factor = -factor;
+		
+		double dX = getX() - point.x + factor;
 		double dY = getY() - point.y;
 		
 		// calculates the inclination of the line between the two points
@@ -278,6 +281,11 @@ public class MapPoint extends PointModel implements WktModel<Point> {
 		return Geometry.TYPENAME_POINT;
 	}
 	
+	@Override
+	public String toString() {
+		return wktGeometry().toString();
+	}
+
 	// Angular distance to linear distance in km
 	public double convertLinearToAngularDistanceInDegrees(double linearDistance) {
 		double factor = radius() * Math.PI / 180;

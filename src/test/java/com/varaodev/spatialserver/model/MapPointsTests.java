@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -32,6 +33,42 @@ public class MapPointsTests {
 			new MapPoint(178,3),
 			new MapPoint(-179, 2),
 			new MapPoint(-178,1)
+			);
+	
+	// 02 edge crosses
+	List<MapPoint> edge2 = List.of(
+			new MapPoint(-178,2),
+			new MapPoint(-178,3),
+			new MapPoint(178, 2),
+			new MapPoint(178,0),
+			new MapPoint(-179,-1),
+			new MapPoint(-179,0),
+			new MapPoint(179,1)
+			);
+	
+	// 01 edge cross (pole)
+	List<MapPoint> edge3 = List.of(
+			new MapPoint(-178,72),
+			new MapPoint(-100,73),
+			new MapPoint(-20, 74),
+			new MapPoint(20,74),
+			new MapPoint(100,73),
+			new MapPoint(178,72),
+			new MapPoint(-178,72)
+			);
+	
+	// 03 edge crosses
+	List<MapPoint> edge4 = List.of(
+			new MapPoint(-175,11),
+			new MapPoint(175,8),
+			new MapPoint(175,6),
+			new MapPoint(-177,4),
+			new MapPoint(175,2),
+			new MapPoint(175,0),
+			new MapPoint(-175,3),
+			new MapPoint(-175,5),
+			new MapPoint(177,7),
+			new MapPoint(-175,9)
 			);
 	
 //	@Test
@@ -83,9 +120,17 @@ public class MapPointsTests {
 	
 	@Test
 	void viewInMap() {
-		MapPoints points = new MapPoints(edge);
+		List<MapPoint> list = new ArrayList<>(edge4);
+		list.add(list.get(0));
+		MapPoints points = new MapPoints(list);
 		System.out.println(points);
-		System.out.println(points.regroupedPoints());
+		
+//		System.out.println(points.regroupedPoints());
+		
+		List<MapPolygon> polygons = points.regroupedPoints().stream()
+				.map(mp -> new MapPolygon(new MapPoints(mp), null))
+				.collect(Collectors.toList());
+		System.out.println(new StdPolygon(polygons));
 	}
 	
 //	@Test

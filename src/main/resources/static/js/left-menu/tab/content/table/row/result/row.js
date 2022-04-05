@@ -97,7 +97,7 @@ function layerValue(node) {
         const wkt = wktGeometries(layerArray[id].getSource().getFeatures())
         return node.hasAttribute('array') ? wkt : wkt[0]
     } catch (error) {
-        errorAlert("Geometry is empty")
+        console.log("Geometry is empty")
     }
 }
 

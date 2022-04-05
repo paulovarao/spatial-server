@@ -1,131 +1,208 @@
 package com.varaodev.spatialserver.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public interface Viewable {
 	
 	List<MapPoint> getPoints();
 	
 	default List<List<MapPoint>> regroupedPoints() {
-		// add points to represent 180 degree meridian Edges in 2D map
-		List<MapPoint> pointList = includeLimitPoints();
-
-		// if there were edges, reorder points to begin in first limit
-		if (pointList.size() != getPoints().size()) {
-			// remove last element if is ring
-			if (isRing()) pointList.remove(pointList.size()-1);
-			
-			pointList = reorderedList(pointList);
-		}
 		
+		// add points to represent 180 degree meridian Edges in 2D map
+		Formatter formatter = isRing() ? new RingFormatter(getPoints()) : new Formatter(getPoints());
+
 		// group points in different edge sides as elements of a list
-		return rearrangedPoints(pointList);
+		List<List<MapPoint>> result = formatter.rearrangedPoints();
+		
+		return result;
 	}
 	
 	// Private methods
-	private List<MapPoint> includeLimitPoints() {
-		List<MapPoint> pointList = getPoints();
-		
-		// start filling new list with first point
-		MapPoint previous = pointList.get(0);
-		List<MapPoint> points = new ArrayList<>(List.of(previous));
-		
-		// compute the number of limit crosses
-		int n = 0;
-		for (int i = 1; i < pointList.size(); i++) 
-			if (pointList.get(i-1).crossedMapLonLimit(pointList.get(i))) n++;
-		
-		// sweep list of points
-		for (int i = 1; i < pointList.size(); i++) {
-			MapPoint current = pointList.get(i);
-			if (previous.crossedMapLonLimit(current)) {
-				// calculates point at limit edge
-				MapPoint limitPoint = previous.limitPoint(current);
-				MapPoint limitInverted = limitPoint.invertLongitude();
-				
-				// add limitPoint to list if not repeated
-				if (!limitPoint.equals(previous)) points.add(limitPoint);
-				
-				// if there is only one limit cross and points form a ring, 
-				// then points are equivalent to pole region.
-				// extra points must be added
-				if (n == 1 && isRing()) points.addAll(poleCornerPointsList(limitPoint));
-				
-				// add limitInverted point to list if not repeated
-				if (!limitInverted.equals(current)) points.add(limitInverted);
-			}
-			// add current point if not repeated
-			if (!current.equals(previous)) points.add(current);
-			previous = current;
-		}
-		return points;
-	}
-	
-	private List<MapPoint> poleCornerPointsList(MapPoint limitPoint) {
-		// define if it's south or north pole based on limitPoint latitude
-		Double cornerLat = limitPoint.y < 0 ? -90.0 : 90.0;
-		
-		// calculate corners and middle point for 2D map
-		MapPoint corner1 = new MapPoint(limitPoint.x, cornerLat);
-		MapPoint middle = new MapPoint(0, cornerLat);
-		MapPoint corner2 = corner1.invertLongitude();
-		return new ArrayList<>(List.of(corner1,middle,corner2));
-	}
-	
-	private List<MapPoint> reorderedList(List<MapPoint> pointList) {
-		// find index of first limitPoint in list
-		int index = firstLimitIndex(pointList);
-		
-		// change order of list, beginning with first limit point
-		List<MapPoint> points = new ArrayList<>( pointList.subList(index, pointList.size()) );
-		points.addAll(pointList.subList(0, index));
-		return points;
-	}
-	
-	private List<List<MapPoint>> rearrangedPoints(List<MapPoint> pointList) {
-		List<List<MapPoint>> groupList = new ArrayList<>();
-		List<MapPoint> subList = new ArrayList<>(List.of(pointList.get(0)));
-		
-		for (int i = 1; i < pointList.size(); i++) {
-			subList = new ArrayList<>(subList);
-			if (!pointList.get(i-1).crossedMapLonLimit(pointList.get(i)))
-				subList.add(pointList.get(i));
-			else {
-				groupList.add(formattedList(subList));
-				subList = List.of(pointList.get(i));
-			}
-		}
-		groupList.add(formattedList(subList));
-		return groupList;
-	}
-	
-	private Integer firstLimitIndex(List<MapPoint> pointList) {
-		for (int i = 0; i < pointList.size()-1; i++) {
-			MapPoint curr = pointList.get(i);
-			MapPoint next = pointList.get(i+1);
-			if (Math.abs(curr.x) == 180 && !curr.crossedMapLonLimit(next))
-					return i;
-		}
-		return null;
-	}
-	
-	private List<MapPoint> formattedList(List<MapPoint> pointList) {
-		if (isRing()) {
-			// add first element to list
-			List<MapPoint> newList = new ArrayList<>(pointList);
-			if (!newList.get(0).equals(newList.get(newList.size()-1))) 
-				newList.add(newList.get(0));
-			return newList;
-		}
-		return pointList;
-	}
-	
 	private boolean isRing() {
-		List<MapPoint> list = getPoints();
-		MapPoint first = list.get(0);
-		MapPoint last = list.get(list.size()-1);
+		List<MapPoint> points = getPoints();
+		MapPoint first = points.get(0);
+		MapPoint last = points.get(points.size()-1);
 		return first.distance(last) < 1E-12;
+	}
+	
+	static class RingFormatter extends Formatter {
+		
+		private Set<Set<Double>> validEdgeSet;
+
+		public RingFormatter(List<MapPoint> points) {
+			super(points);
+			
+			// if there is only one limit cross, 
+			// then points are equivalent to pole region.
+			if (edgeLatitudes.size() == 1) addPoleCornerPoints();
+			
+			// if there were edges, reorder points to begin in first limit
+			if (viewPoints.size() > points.size()) reorderViewPoints();
+		}
+		
+		@Override
+		public List<List<MapPoint>> rearrangedPoints() {
+			List<List<MapPoint>> groupList = super.rearrangedPoints();
+			if(groupList.size() == 1) return groupList;
+			
+			List<List<MapPoint>> rearrangedPoints = new ArrayList<>();
+			
+			validEdgeSet = edgeSet(edgeLatitudes);
+			
+			while(groupList.size() > 0) {
+				List<MapPoint> group = new ArrayList<>(groupList.get(0));
+				groupList.remove(0);
+				Set<Double> limitSet = limitSet(group);
+				
+				if (validEdgeSet.contains(limitSet)) rearrangedPoints.add(ringList(group));
+				else {
+					for (int i = 0; i < groupList.size(); i++) {
+						List<MapPoint> g = new ArrayList<>(groupList.get(i));
+						List<Double> ls = new ArrayList<>(limitSet(g));
+						ls.addAll(limitSet);
+						Set<Set<Double>> edgeSet = edgeSet(ls);
+						
+						if (validEdgeSet.containsAll(edgeSet)) {
+							group.addAll(g);
+							rearrangedPoints.add(ringList(group));
+							groupList.remove(i);
+							break;
+						}
+					}
+				}
+			}
+			
+			return rearrangedPoints;
+		}
+		
+		private Set<Double> limitSet(List<MapPoint> group) {
+			Set<Double> limitSet = new HashSet<>();
+			limitSet.add(group.get(0).getY());
+			limitSet.add(group.get(group.size()-1).getY());
+			return limitSet;
+		}
+		
+		private Set<Set<Double>> edgeSet(Collection<Double> edgeLatitudes) {
+			Set<Set<Double>> resultSet = new HashSet<>();
+
+			List<Double> edgeLatList = new ArrayList<>(edgeLatitudes);
+			Collections.sort(edgeLatList);
+			
+			int setSize = edgeLatList.size() / 2;			
+			for (int i = 0; i < setSize; i++) {
+				Set<Double> edgeSet = new HashSet<>(edgeLatList.subList(2*i, 2*i+2));
+				resultSet.add(edgeSet);
+			}
+			return resultSet;
+		}
+		
+		private List<MapPoint> ringList(List<MapPoint> pointList) {
+			// add first element to list
+			List<MapPoint> ringList = new ArrayList<>(pointList);
+			MapPoint first = ringList.get(0), last = ringList.get(ringList.size()-1);
+			if (!first.equals(last)) ringList.add(first);
+			return ringList;
+		}
+
+		private void reorderViewPoints() {
+			// remove last element if is ring
+			viewPoints.remove(viewPoints.size()-1);
+			
+			// start from limitPoint if ring
+			int limitIndex = viewPoints.indexOf(limitPoint) + 1;
+			
+			// change order of list, beginning with first limit point
+			List<MapPoint> reorderedPoints = new ArrayList<>();
+			reorderedPoints.addAll(viewPoints.subList(limitIndex, viewPoints.size()));
+			reorderedPoints.addAll(viewPoints.subList(0, limitIndex));
+			viewPoints = reorderedPoints;
+		}
+		
+		private void addPoleCornerPoints() {
+			int limitIndex = viewPoints.indexOf(limitPoint) + 1;
+			
+			// define if it's south or north pole based on limitPoint latitude
+			Double cornerLat = limitPoint.y < 0 ? -90.0 : 90.0;
+			
+			// calculate corners and middle point for 2D map
+			MapPoint corner1 = new MapPoint(limitPoint.x, cornerLat);
+			MapPoint middle = new MapPoint(0, cornerLat);
+			MapPoint corner2 = corner1.invertLongitude();
+			List<MapPoint> poleCornerPoints =  new ArrayList<>(List.of(corner1,middle,corner2));
+			
+			List<MapPoint> newList = new ArrayList<>(viewPoints.subList(0, limitIndex));
+			newList.addAll(poleCornerPoints);
+			newList.addAll(viewPoints.subList(limitIndex, viewPoints.size()));
+			viewPoints = newList;
+		}
+	}
+	
+	
+	static class Formatter {
+		
+		protected MapPoint limitPoint;
+		protected List<Double> edgeLatitudes = new ArrayList<>();
+		
+		protected List<MapPoint> viewPoints = new ArrayList<>();
+		
+		public Formatter(List<MapPoint> points) {
+			updateViewPoints(points);
+		}
+		
+		public List<List<MapPoint>> rearrangedPoints() {
+			List<List<MapPoint>> groupList = new ArrayList<>();
+						
+			List<MapPoint> group = new ArrayList<>();
+			group.add(viewPoints.get(0));
+			
+			for (int i = 1; i < viewPoints.size(); i++) {
+				MapPoint previous = viewPoints.get(i-1), current = viewPoints.get(i);
+				
+				if (previous.crossedMapLonLimit(current)) {
+					// add a new group every time there is an edge cross
+					groupList.add(new ArrayList<>(group));
+					
+					// reset group list
+					group = new ArrayList<>();
+				}
+				group.add(current);
+			}
+			groupList.add(new ArrayList<>(group));
+			return groupList;
+		}
+
+		protected void updateViewPoints(List<MapPoint> pointList) {
+			
+			// start filling new list with first point
+			MapPoint previous = pointList.get(0);
+			viewPoints.add(previous);
+			
+			// sweep list of points
+			for (int i = 1; i < pointList.size(); i++) {
+				MapPoint current = pointList.get(i);
+				if (previous.crossedMapLonLimit(current)) {
+					// calculates point at limit edge
+					limitPoint = previous.limitPoint(current);
+					MapPoint limitInverted = limitPoint.invertLongitude();
+					
+					edgeLatitudes.add(limitPoint.getY());
+					
+					// add limitPoint to list if not repeated
+					if (!limitPoint.equals(previous)) viewPoints.add(limitPoint);
+					
+					// add limitInverted point to list if not repeated
+					if (!limitInverted.equals(current)) viewPoints.add(limitInverted);
+				}
+				// add current point if not repeated
+				if (!current.equals(previous)) viewPoints.add(current);
+				previous = current;
+			}
+		}
 	}
 
 }

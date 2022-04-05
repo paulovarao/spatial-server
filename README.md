@@ -2,26 +2,31 @@
 
 ## TO DO
 
+- zoom to result after update
+- remove centroid style of satellite FOR
+- limit satellite orbit altitude
+- test 90 deg inclination orbit
+- load custom TLE file
 - Open topo data / open elevation
-- Flat edges for satellite orbits
 - display errors for satellite
+
 - filter polygon access
 - select satellite using name
 - limit elements in input arrays
 - all available endpoints
 
-## Technologies
+## Languages
 
 * Java
-* Spring Boot
 * JavaScript
 * HTML
 * CSS
 
-## Libraries
+## Frameworks & Libraries
 
 ### Java
 
+* Spring Boot
 * JTS
 
 ### Javascript

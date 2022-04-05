@@ -24,8 +24,13 @@ function selectTab(tab, show, callback) {
     updateSelectedTabStyle(tab)
     updateDrawAndOperation(show)
     clearTables()
+    drawGeometry.value = 'None'
     operationSelect.value = 'None'
-    if (!show) buildSatelliteSection()
+    if (!show) {
+        buildSatelliteSection()
+        clearDrawSource()
+        map.removeInteraction(drawInteraction)
+    }
 }
 
 geometryTab.onclick = () => selectTab(geometryTab, true)

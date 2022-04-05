@@ -1,7 +1,7 @@
 function buildSatelliteSection() {
     const classifiedRows = {
         paramRows: satelliteParametersRows(), 
-        layerRows: [], // satelliteLayerRows(), 
+        layerRows: satelliteLayerRows(), 
         resultRows: satelliteResultRows()
     }
     updateTables(classifiedRows)

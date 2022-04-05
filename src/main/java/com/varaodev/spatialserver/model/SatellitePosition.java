@@ -66,7 +66,10 @@ public class SatellitePosition {
         double angle = Math.asin(Math.sin(laRad) * (radius + altitude) / radius);
         return angle - laRad; // equivalent to 180 - larad - (180 - angle)
     }
-	
-	
+
+	@Override
+	public String toString() {
+		return toMapPoint().wktGeometry().toString();
+	}
 
 }
